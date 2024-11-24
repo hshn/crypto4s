@@ -13,8 +13,8 @@ trait BlobInstances {
   given Blob[String] with {
     override def asBlob(a: String): Array[Byte] = a.getBytes
   }
-  given [A]: Blob[Hashed[A]] with {
-    override def asBlob(a: Hashed[A]): Array[Byte] = a.hash
+  given [Alg, A]: Blob[Hashed[Alg, A]] with {
+    override def asBlob(a: Hashed[Alg, A]): Array[Byte] = a.hash
   }
   given [A]: Blob[Encrypted[A]] with {
     override def asBlob(a: Encrypted[A]): Array[Byte] = a.blob
@@ -28,7 +28,7 @@ trait BlobInstances {
 }
 
 trait BlobExtension {
-  extension [A](a: A)(using blob: Blob[A]) {
-    def blob: Array[Byte] = blob.asBlob(a)
+  extension [A](a: A) {
+    def blob(using blob: Blob[A]): Array[Byte] = blob.asBlob(a)
   }
 }
