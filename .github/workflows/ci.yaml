@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+env:
+  SCALA_VERSION: 3.5.1
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+        cache: 'sbt'
+
+    - name: Cache compilation
+      uses: actions/cache@v4
+      with:
+        key: ${{ runner.os }}-compilation-${{ env.SCALA_VERSION }}
+        restore-keys: |
+          ${{ runner.os }}-compilation-${{ env.SCALA_VERSION }}
+        path:
+          projects/**/target/scala-*
+        lookup-only: ${{ github.ref != 'refs/heads/main' }}
+
+    - name: Compile
+      run: sbt "Test / compile"
+
+    - name: test
+      run: sbt "Test / test"
+
+    - uses: actions/upload-artifact@v4
+      if: success() || failure()
+      with:
+        name: test-reports
+        path: '**/target/test-reports/*.xml'
