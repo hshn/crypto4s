@@ -7,15 +7,10 @@ import java.util
 trait Hashed[Alg, A] {
   val hash: Array[Byte]
 
-  def hasSameHash(of: A)(using Hashing[Alg, A], Blob[A]): Boolean = {
-    val hashed = of.toHashed[Alg]
+  def hasSameHash(of: A)(using Hashing[Alg, A], Blob[A]): Boolean = isEqualTo(of.toHashed[Alg])
 
-    isEqualTo(hashed.hash)
-  }
-
-  def hasSameHash(hashed: Hashed[Alg, A]): Boolean = isEqualTo(hashed.hash)
-
-  def isEqualTo(other: Array[Byte]): Boolean = MessageDigest.isEqual(hash, other)
+  def isEqualTo(hashed: Hashed[Alg, A]): Boolean = isEqualTo(hashed.hash)
+  def isEqualTo(other: Array[Byte]): Boolean     = MessageDigest.isEqual(hash, other)
 
   def toHexString: String       = hash.map("%02x".format(_)).mkString
   def toBase64String: String    = util.Base64.getEncoder.encodeToString(hash)

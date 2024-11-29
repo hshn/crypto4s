@@ -35,6 +35,8 @@ object Hashing {
     }
   }
 
+  given [A]: Argon2Hashing[A] = Argon2id[A]
+
   def Argon2i[A]: Argon2Hashing[A]  = Argon2[A](`type` = Type.Argon2i)
   def Argon2d[A]: Argon2Hashing[A]  = Argon2[A](`type` = Type.Argon2d)
   def Argon2id[A]: Argon2Hashing[A] = Argon2[A](`type` = Type.Argon2id)

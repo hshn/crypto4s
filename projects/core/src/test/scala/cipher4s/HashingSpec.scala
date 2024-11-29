@@ -20,8 +20,8 @@ object HashingSpec extends ZIOSpecDefault {
 
         assertTrue(
           hash1.hash.length == 20,
-          !hash1.hasSameHash(hash2),
-          hash1.hasSameHash(hash3),
+          !hash1.isEqualTo(hash2),
+          hash1.isEqualTo(hash3),
           hash1.hasSameHash(of = string),
           !hash1.hasSameHash(of = string + "a")
         )
@@ -35,8 +35,8 @@ object HashingSpec extends ZIOSpecDefault {
 
         assertTrue(
           hash1.hash.length == 32,
-          !hash1.hasSameHash(hash2),
-          hash1.hasSameHash(hash3),
+          !hash1.isEqualTo(hash2),
+          hash1.isEqualTo(hash3),
           hash1.hasSameHash(of = string),
           !hash1.hasSameHash(of = string + "a")
         )
@@ -44,15 +44,13 @@ object HashingSpec extends ZIOSpecDefault {
     }
     test("Argon2") {
       checkAll(Gen.string) { string =>
-        given Argon2Hashing[String] = Hashing.Argon2id[String]
-
         val hash1 = string.toHashed[Algorithm.Argon2]
         val hash2 = (string + "a").toHashed[Algorithm.Argon2]
         val hash3 = string.toHashed[Algorithm.Argon2]
 
         assertTrue(
-          !hash1.hasSameHash(hash2),
-          hash1.hasSameHash(hash3),
+          !hash1.isEqualTo(hash2),
+          hash1.isEqualTo(hash3),
           hash1.hasSameHash(of = string),
           !hash1.hasSameHash(of = string + "a"),
           hash1.hash.length == 32,
@@ -81,8 +79,8 @@ object HashingSpec extends ZIOSpecDefault {
         val hash3 = string.toHashed[Algorithm.Argon2]
 
         assertTrue(
-          !hash1.hasSameHash(hash2),
-          hash1.hasSameHash(hash3),
+          !hash1.isEqualTo(hash2),
+          hash1.isEqualTo(hash3),
           hash1.hasSameHash(of = string),
           !hash1.hasSameHash(of = string + "a"),
           hash1.hash.length == 40,
