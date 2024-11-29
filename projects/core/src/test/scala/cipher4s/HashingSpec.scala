@@ -1,7 +1,6 @@
 package cipher4s
 
 import cipher4s.implicits.*
-import java.security.MessageDigest
 import java.util.Base64
 import zio.Scope
 import zio.test.Gen
@@ -20,8 +19,9 @@ object HashingSpec extends ZIOSpecDefault {
         val hash3 = string.toHashed[Algorithm.SHA1]
 
         assertTrue(
-          hash1 != hash2,
-          hash1 == hash3,
+          hash1.hash.length == 20,
+          !hash1.hasSameHash(hash2),
+          hash1.hasSameHash(hash3),
           hash1.hasSameHash(of = string),
           !hash1.hasSameHash(of = string + "a")
         )
@@ -34,10 +34,65 @@ object HashingSpec extends ZIOSpecDefault {
         val hash3 = string.toHashed[Algorithm.SHA256]
 
         assertTrue(
-          hash1 != hash2,
-          hash1 == hash3,
+          hash1.hash.length == 32,
+          !hash1.hasSameHash(hash2),
+          hash1.hasSameHash(hash3),
           hash1.hasSameHash(of = string),
           !hash1.hasSameHash(of = string + "a")
+        )
+      }
+    }
+    test("Argon2") {
+      checkAll(Gen.string) { string =>
+        given Argon2Hashing[String] = Hashing.Argon2id[String]
+
+        val hash1 = string.toHashed[Algorithm.Argon2]
+        val hash2 = (string + "a").toHashed[Algorithm.Argon2]
+        val hash3 = string.toHashed[Algorithm.Argon2]
+
+        assertTrue(
+          !hash1.hasSameHash(hash2),
+          hash1.hasSameHash(hash3),
+          hash1.hasSameHash(of = string),
+          !hash1.hasSameHash(of = string + "a"),
+          hash1.hash.length == 32,
+          hash1.`type` == Algorithm.Argon2.Type.Argon2id,
+          hash1.version == Algorithm.Argon2.Version.V13,
+          hash1.salt == None,
+          hash1.memory == MemorySize.mb(64),
+          hash1.iterations == 2,
+          hash1.length == 32,
+          hash1.parallelism == 1
+        )
+      }
+    }
+    test("Argon2: custom") {
+      checkAll(Gen.string, Gen.listOf1(Gen.byte)) { case (string, salt) =>
+        given Argon2Hashing[String] = Hashing
+          .Argon2id[String]
+          .withVersion(Algorithm.Argon2.Version.V10)
+          .withSalt(salt.toArray)
+          .withIterations(3)
+          .withLength(40)
+          .withParallelism(2)
+
+        val hash1 = string.toHashed[Algorithm.Argon2]
+        val hash2 = (string + "a").toHashed[Algorithm.Argon2]
+        val hash3 = string.toHashed[Algorithm.Argon2]
+
+        assertTrue(
+          !hash1.hasSameHash(hash2),
+          hash1.hasSameHash(hash3),
+          hash1.hasSameHash(of = string),
+          !hash1.hasSameHash(of = string + "a"),
+          hash1.hash.length == 40,
+          hash1.`type` == Algorithm.Argon2.Type.Argon2id,
+          hash1.version == Algorithm.Argon2.Version.V10,
+          hash1.salt.get == salt.toArray,
+          hash1.memory == MemorySize.mb(64),
+          hash1.iterations == 3,
+          hash1.length == 40,
+          hash1.parallelism == 2
         )
       }
     }
