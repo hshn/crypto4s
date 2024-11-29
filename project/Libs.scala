@@ -8,4 +8,8 @@ object Libs {
     val testSbt      = "dev.zio" %% "zio-test-sbt"      % version
     val testMagnolia = "dev.zio" %% "zio-test-magnolia" % version
   }
+
+  object bouncycastle {
+    val bcpix = "org.bouncycastle" % "bcpkix-jdk18on" % "1.79"
+  }
 }

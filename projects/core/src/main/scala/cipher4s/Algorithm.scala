@@ -13,4 +13,14 @@ object Algorithm {
 
   type SHA256 = SHA256.type
   case object SHA256 extends Algorithm
+
+  type Argon2 = Argon2.type
+  case object Argon2 extends Algorithm {
+    enum Type {
+      case Argon2i, Argon2d, Argon2id
+    }
+    enum Version {
+      case V10, V13
+    }
+  }
 }
