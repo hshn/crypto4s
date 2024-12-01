@@ -32,8 +32,8 @@ object KeyPairSpec extends ZIOSpecDefault {
           val encryptedSecretKey = keyPair.encrypt(dek)
 
           for {
-            decryptedSecretKey <- ZIO.fromEither(keyPair.decrypt(encryptedSecretKey))
-            decryptedData      <- ZIO.fromEither(decryptedSecretKey.decrypt(encryptedData))
+            decryptedSecretKey <- (keyPair.decrypt(encryptedSecretKey))
+            decryptedData      <- (decryptedSecretKey.decrypt(encryptedData))
           } yield {
             assertTrue(data == decryptedData)
           }
