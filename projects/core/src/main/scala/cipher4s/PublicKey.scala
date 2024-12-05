@@ -5,11 +5,14 @@ import java.security.PublicKey as JPublicKey
 import java.security.Signature as JSignature
 import javax.crypto.Cipher
 
-trait PublicKey[Alg] {
+trait PublicKey[Alg] { self =>
   val algorithm: Alg
 
   def encrypt[A: Blob](a: A): Encrypted[A]
-  def verify(data: Array[Byte], signature: Array[Byte]): Boolean
+  def verify[A: Blob, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
+    verification.verify(key = self, a = a, signature = signature)
+
+  def asJava: JPublicKey
 }
 
 private[cipher4s] case class JavaPublicKey[Alg](
@@ -23,10 +26,5 @@ private[cipher4s] case class JavaPublicKey[Alg](
     Encrypted[A](cipher.doFinal(a.blob))
   }
 
-  override def verify(data: Array[Byte], signature: Array[Byte]): Boolean = {
-    val verifier = JSignature.getInstance(delegate.getAlgorithm)
-    verifier.initVerify(delegate)
-    verifier.update(data)
-    verifier.verify(signature)
-  }
+  override def asJava: JPublicKey = delegate
 }

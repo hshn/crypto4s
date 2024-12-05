@@ -2,11 +2,11 @@ package cipher4s
 
 sealed trait Algorithm
 object Algorithm {
-  type RS256 = RS256.type
-  case object RS256 extends Algorithm
+  type RSA = RSA.type
+  case object RSA extends Algorithm
 
-  type AES256 = AES256.type
-  case object AES256 extends Algorithm
+  type AES = AES.type
+  case object AES extends Algorithm
 
   type SHA1 = SHA1.type
   case object SHA1 extends Algorithm
@@ -23,4 +23,8 @@ object Algorithm {
       case V10, V13
     }
   }
+
+  // signing algorithms
+  type RS256 = RS256.type
+  case object RS256
 }

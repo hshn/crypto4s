@@ -10,12 +10,16 @@ case class KeyPair[Alg](
 
   def encrypt[A: Blob](a: A): Encrypted[A]                                             = publicKey.encrypt(a)
   def decrypt[A: Deserializable](encrypted: Encrypted[A]): Either[RuntimeException, A] = privateKey.decrypt(encrypted)
+
+  def sign[A: Blob, SignAlg](a: A)(using Signing[SignAlg, Alg]): Signed[SignAlg, A] = privateKey.sign(a)
+  def verify[A: Blob, SignAlg](a: A, signature: Signed[SignAlg, A])(using Verification[SignAlg, Alg]): Boolean =
+    publicKey.verify(a, signature)
 }
 
 object KeyPair {
-  def genRS256(
+  def genRSA(
     keySize: Int = 2048
-  ): KeyPair[Algorithm.RS256] = {
+  ): KeyPair[Algorithm.RSA] = {
     val keyGen = KeyPairGenerator.getInstance("RSA")
     keyGen.initialize(keySize)
 
@@ -23,11 +27,11 @@ object KeyPair {
 
     KeyPair(
       privateKey = JavaPrivateKey(
-        algorithm = Algorithm.RS256,
+        algorithm = Algorithm.RSA,
         delegate = keyPair.getPrivate
       ),
       publicKey = JavaPublicKey(
-        algorithm = Algorithm.RS256,
+        algorithm = Algorithm.RSA,
         delegate = keyPair.getPublic
       )
     )
