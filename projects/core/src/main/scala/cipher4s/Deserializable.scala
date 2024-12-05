@@ -1,6 +1,6 @@
 package cipher4s
 
-import cipher4s.Algorithm.RS256
+import cipher4s.Algorithm.RSA
 
 trait Deserializable[A] {
   def deserialize(a: Array[Byte]): Either[RuntimeException, A]
@@ -13,13 +13,13 @@ object Deserializable {
   given Deserializable[String] with {
     override def deserialize(a: Array[Byte]): Either[RuntimeException, String] = Right(new String(a))
   }
-  given Deserializable[PrivateKey[Algorithm.RS256]] with {
-    override def deserialize(a: Array[Byte]): Either[RuntimeException, PrivateKey[RS256]] =
-      PrivateKey.rs256(a).left.map(e => new RuntimeException("Failed to deserialize private key", e))
+  given Deserializable[PrivateKey[Algorithm.RSA]] with {
+    override def deserialize(a: Array[Byte]): Either[RuntimeException, PrivateKey[RSA]] =
+      PrivateKey.RSA(a).left.map(e => new RuntimeException("Failed to deserialize private key", e))
   }
-  given Deserializable[SecretKey[Algorithm.AES256]] with {
-    override def deserialize(a: Array[Byte]): Either[RuntimeException, SecretKey[Algorithm.AES256]] =
-      SecretKey.aes256(a).left.map(e => new RuntimeException("Failed to deserialize secret key", e))
+  given Deserializable[SecretKey[Algorithm.AES]] with {
+    override def deserialize(a: Array[Byte]): Either[RuntimeException, SecretKey[Algorithm.AES]] =
+      SecretKey.AES(a).left.map(e => new RuntimeException("Failed to deserialize secret key", e))
   }
 }
 

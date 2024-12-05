@@ -9,24 +9,25 @@ import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
 
-sealed trait PrivateKey[Alg] {
+sealed trait PrivateKey[Alg] { self =>
+  type Algorithm = Alg
   val algorithm: Alg
 
-  def sign(data: Array[Byte]): Array[Byte]
+  def sign[A: Blob, SignAlg](a: A)(using singing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = singing.sign[A](key = self, a = a)
   def decrypt[A: Deserializable](data: Encrypted[A]): Either[RuntimeException, A]
 
   def asJava: JPrivateKey
 }
 
 object PrivateKey {
-  def rs256(key: Array[Byte]): Either[InvalidKeySpecException, PrivateKey[Algorithm.RS256]] = try {
+  def RSA(key: Array[Byte]): Either[InvalidKeySpecException, PrivateKey[Algorithm.RSA]] = try {
     val keySpec    = new PKCS8EncodedKeySpec(key)
     val keyFactory = KeyFactory.getInstance("RSA")
     val privateKey = keyFactory.generatePrivate(keySpec)
 
     Right(
       JavaPrivateKey(
-        algorithm = Algorithm.RS256,
+        algorithm = Algorithm.RSA,
         delegate = privateKey
       )
     )
@@ -39,11 +40,6 @@ private[cipher4s] case class JavaPrivateKey[Alg](
   algorithm: Alg,
   delegate: JPrivateKey
 ) extends PrivateKey[Alg] {
-  override def sign(data: Array[Byte]): Array[Byte] = {
-    val signer = Cipher.getInstance(delegate.getAlgorithm)
-    signer.init(Cipher.ENCRYPT_MODE, delegate)
-    signer.doFinal(data)
-  }
 
   override def decrypt[A: Deserializable](data: Encrypted[A]): Either[RuntimeException, A] = try {
     val decrypter = Cipher.getInstance(delegate.getAlgorithm)

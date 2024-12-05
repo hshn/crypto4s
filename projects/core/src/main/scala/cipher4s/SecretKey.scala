@@ -18,18 +18,18 @@ trait SecretKey[Alg] {
 }
 
 object SecretKey {
-  def genAES256(size: Int = 256): SecretKey[Algorithm.AES256.type] = {
+  def AES(size: Int = 256): SecretKey[Algorithm.AES.type] = {
     val keyGen = KeyGenerator.getInstance("AES")
     keyGen.init(size)
     val key = keyGen.generateKey()
 
     JavaSecretKey(
-      algorithm = Algorithm.AES256,
+      algorithm = Algorithm.AES,
       delegate = key
     )
   }
 
-  def aes256(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[Algorithm.AES256.type]] = {
+  def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[Algorithm.AES.type]] = {
     for {
       keySpec <-
         try {
@@ -39,7 +39,7 @@ object SecretKey {
         }
     } yield {
       JavaSecretKey(
-        algorithm = Algorithm.AES256,
+        algorithm = Algorithm.AES,
         delegate = keySpec
       )
     }

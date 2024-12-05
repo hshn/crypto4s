@@ -13,7 +13,7 @@ object SecretKeySpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("SecretKey") {
     suiteAll("encrypt and decrypt") {
       test("string(algorithm=aes256)") {
-        val secretKey = SecretKey.genAES256()
+        val secretKey = SecretKey.AES()
 
         check(Gen.alphaNumericStringBounded(0, 256)) { data =>
           val encrypted = secretKey.encrypt(data)
@@ -27,8 +27,8 @@ object SecretKeySpec extends ZIOSpecDefault {
       }
 
       test("secretKey(algorithm=aes256)") {
-        val dek       = SecretKey.genAES256()
-        val secretKey = SecretKey.genAES256()
+        val dek       = SecretKey.AES()
+        val secretKey = SecretKey.AES()
 
         check(
           Gen.alphaNumericStringBounded(0, 256)

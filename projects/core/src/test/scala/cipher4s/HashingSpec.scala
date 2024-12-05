@@ -20,10 +20,10 @@ object HashingSpec extends ZIOSpecDefault {
 
         assertTrue(
           hash1.hash.length == 20,
-          !hash1.isEqualTo(hash2),
-          hash1.isEqualTo(hash3),
-          hash1.hasSameHash(of = string),
-          !hash1.hasSameHash(of = string + "a")
+          !hash1.verify(hash2),
+          hash1.verify(hash3),
+          hash1.verify(of = string),
+          !hash1.verify(of = string + "a")
         )
       }
     }
@@ -35,10 +35,10 @@ object HashingSpec extends ZIOSpecDefault {
 
         assertTrue(
           hash1.hash.length == 32,
-          !hash1.isEqualTo(hash2),
-          hash1.isEqualTo(hash3),
-          hash1.hasSameHash(of = string),
-          !hash1.hasSameHash(of = string + "a")
+          !hash1.verify(hash2),
+          hash1.verify(hash3),
+          hash1.verify(of = string),
+          !hash1.verify(of = string + "a")
         )
       }
     }
@@ -49,10 +49,10 @@ object HashingSpec extends ZIOSpecDefault {
         val hash3 = string.toHashed[Algorithm.Argon2]
 
         assertTrue(
-          !hash1.isEqualTo(hash2),
-          hash1.isEqualTo(hash3),
-          hash1.hasSameHash(of = string),
-          !hash1.hasSameHash(of = string + "a"),
+          !hash1.verify(hash2),
+          hash1.verify(hash3),
+          hash1.verify(of = string),
+          !hash1.verify(of = string + "a"),
           hash1.hash.length == 32,
           hash1.`type` == Algorithm.Argon2.Type.Argon2id,
           hash1.version == Algorithm.Argon2.Version.V13,
@@ -79,10 +79,10 @@ object HashingSpec extends ZIOSpecDefault {
         val hash3 = string.toHashed[Algorithm.Argon2]
 
         assertTrue(
-          !hash1.isEqualTo(hash2),
-          hash1.isEqualTo(hash3),
-          hash1.hasSameHash(of = string),
-          !hash1.hasSameHash(of = string + "a"),
+          !hash1.verify(hash2),
+          hash1.verify(hash3),
+          hash1.verify(of = string),
+          !hash1.verify(of = string + "a"),
           hash1.hash.length == 40,
           hash1.`type` == Algorithm.Argon2.Type.Argon2id,
           hash1.version == Algorithm.Argon2.Version.V10,
