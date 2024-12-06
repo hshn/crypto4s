@@ -16,7 +16,8 @@ env:
   SCALA_VERSION: 3.5.1
 
 jobs:
-  ci:
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -50,3 +51,38 @@ jobs:
       with:
         name: test-reports
         path: '**/target/test-reports/*.xml'
+  publish:
+    name: Publish Artifacts
+    runs-on: ubuntu-latest
+    environment: Publish
+    needs: [build]
+    if: (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+        cache: 'sbt'
+
+    - name: Cache compilation
+      uses: actions/cache@v4
+      with:
+        key: ${{ runner.os }}-compilation-${{ env.SCALA_VERSION }}
+        restore-keys: |
+          ${{ runner.os }}-compilation-${{ env.SCALA_VERSION }}
+        path:
+          projects/**/target/scala-*
+        lookup-only: true
+
+    - uses: sbt/setup-sbt@v1
+    - name: Publish to Sonatype
+      env:
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      run: sbt ci-release

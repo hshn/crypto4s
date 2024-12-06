@@ -114,6 +114,6 @@ case class Argon2Hashing[A](
 
 trait HashingExtension {
   extension [A](a: A) {
-    def toHashed[Alg](using hashing: Hashing[Alg, A], blob: Blob[A]): hashing.Result = hashing.hash(a)
+    def hash[Alg](using hashing: Hashing[Alg, A], blob: Blob[A]): hashing.Result = hashing.hash(a)
   }
 }
