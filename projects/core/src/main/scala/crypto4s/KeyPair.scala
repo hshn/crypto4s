@@ -17,7 +17,7 @@ case class KeyPair[Alg](
 }
 
 object KeyPair {
-  def genRSA(
+  def RSA(
     keySize: Int = 2048
   ): KeyPair[Algorithm.RSA] = {
     val keyGen = KeyPairGenerator.getInstance("RSA")

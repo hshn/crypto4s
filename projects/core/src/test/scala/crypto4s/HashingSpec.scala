@@ -1,5 +1,6 @@
 package crypto4s
 
+import crypto4s.Algorithm.SHA1
 import crypto4s.implicits.*
 import java.util.Base64
 import zio.Scope
@@ -14,9 +15,9 @@ object HashingSpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("Hashing") {
     test("SHA1: String") {
       checkAll(Gen.string) { string =>
-        val hash1 = string.toHashed[Algorithm.SHA1]
-        val hash2 = (string + "a").toHashed[Algorithm.SHA1]
-        val hash3 = string.toHashed[Algorithm.SHA1]
+        val hash1: Hashed[SHA1, String] = string.hash[Algorithm.SHA1]
+        val hash2                       = (string + "a").hash[Algorithm.SHA1]
+        val hash3                       = string.hash[Algorithm.SHA1]
 
         assertTrue(
           hash1.hash.length == 20,
@@ -29,9 +30,9 @@ object HashingSpec extends ZIOSpecDefault {
     }
     test("SHA256: String") {
       checkAll(Gen.string) { string =>
-        val hash1 = string.toHashed[Algorithm.SHA256]
-        val hash2 = (string + "a").toHashed[Algorithm.SHA256]
-        val hash3 = string.toHashed[Algorithm.SHA256]
+        val hash1 = string.hash[Algorithm.SHA256]
+        val hash2 = (string + "a").hash[Algorithm.SHA256]
+        val hash3 = string.hash[Algorithm.SHA256]
 
         assertTrue(
           hash1.hash.length == 32,
@@ -44,9 +45,9 @@ object HashingSpec extends ZIOSpecDefault {
     }
     test("Argon2") {
       checkAll(Gen.string) { string =>
-        val hash1 = string.toHashed[Algorithm.Argon2]
-        val hash2 = (string + "a").toHashed[Algorithm.Argon2]
-        val hash3 = string.toHashed[Algorithm.Argon2]
+        val hash1 = string.hash[Algorithm.Argon2]
+        val hash2 = (string + "a").hash[Algorithm.Argon2]
+        val hash3 = string.hash[Algorithm.Argon2]
 
         assertTrue(
           !hash1.verify(hash2),
@@ -74,9 +75,9 @@ object HashingSpec extends ZIOSpecDefault {
           .withLength(40)
           .withParallelism(2)
 
-        val hash1 = string.toHashed[Algorithm.Argon2]
-        val hash2 = (string + "a").toHashed[Algorithm.Argon2]
-        val hash3 = string.toHashed[Algorithm.Argon2]
+        val hash1 = string.hash[Algorithm.Argon2]
+        val hash2 = (string + "a").hash[Algorithm.Argon2]
+        val hash3 = string.hash[Algorithm.Argon2]
 
         assertTrue(
           !hash1.verify(hash2),
@@ -96,7 +97,7 @@ object HashingSpec extends ZIOSpecDefault {
     }
     test("toHexString") {
       checkAll(Gen.string) { string =>
-        val hash = string.toHashed[Algorithm.SHA256]
+        val hash = string.hash[Algorithm.SHA256]
         val hex  = hash.toHexString
 
         assertTrue(
@@ -107,7 +108,7 @@ object HashingSpec extends ZIOSpecDefault {
     }
     test("toBase64String") {
       checkAll(Gen.string) { string =>
-        val hash    = string.toHashed[Algorithm.SHA256]
+        val hash    = string.hash[Algorithm.SHA256]
         val base64  = hash.toBase64String
         val decoded = Base64.getDecoder.decode(base64)
 
@@ -119,7 +120,7 @@ object HashingSpec extends ZIOSpecDefault {
     }
     test("toUrlBase64String") {
       checkAll(Gen.string) { string =>
-        val hash    = string.toHashed[Algorithm.SHA256]
+        val hash    = string.hash[Algorithm.SHA256]
         val base64  = hash.toUrlBase64String
         val decoded = Base64.getUrlDecoder.decode(base64)
 

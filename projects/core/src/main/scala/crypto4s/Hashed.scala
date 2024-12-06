@@ -7,7 +7,7 @@ import java.util
 trait Hashed[Alg, A] {
   val hash: Array[Byte]
 
-  def verify(of: A)(using Hashing[Alg, A], Blob[A]): Boolean = verify(of.toHashed[Alg])
+  def verify(of: A)(using Hashing[Alg, A], Blob[A]): Boolean = verify(of.hash[Alg])
   def verify(hashed: Hashed[Alg, A]): Boolean                = verify(hashed.hash)
   def verify(other: Array[Byte]): Boolean                    = MessageDigest.isEqual(hash, other)
 

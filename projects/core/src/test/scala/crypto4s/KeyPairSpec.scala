@@ -8,7 +8,7 @@ object KeyPairSpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("KeyPairSpec") {
     suiteAll("encrypt and decrypt") {
       test("string: algorithm=RSA") {
-        val keyPair = KeyPair.genRSA()
+        val keyPair = KeyPair.RSA()
 
         checkAll(Gen.string) { data =>
           val encrypted = keyPair.encrypt(data)
@@ -25,7 +25,7 @@ object KeyPairSpec extends ZIOSpecDefault {
       }
       test("secretKey: algorithm=RSA") {
         val dek     = SecretKey.AES()
-        val keyPair = KeyPair.genRSA()
+        val keyPair = KeyPair.RSA()
 
         check(Gen.string) { data =>
           val encryptedData      = dek.encrypt(data)
@@ -43,7 +43,7 @@ object KeyPairSpec extends ZIOSpecDefault {
 
     suiteAll("sign and verify") {
       test("string: algorithm=RSA") {
-        val keyPair = KeyPair.genRSA()
+        val keyPair = KeyPair.RSA()
 
         checkAll(Gen.const("test")) { data =>
           val signature = keyPair.sign(data)
@@ -54,7 +54,7 @@ object KeyPairSpec extends ZIOSpecDefault {
       }
       test("secretKey: algorithm=RSA") {
         val dek     = SecretKey.AES()
-        val keyPair = KeyPair.genRSA()
+        val keyPair = KeyPair.RSA()
 
         check(Gen.string) { data =>
           val encryptedData      = dek.encrypt(data)
