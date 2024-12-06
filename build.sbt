@@ -6,6 +6,9 @@ ThisBuild / developers    := List(Developer("hshn", "Shota Hoshino", "sht.hshn@g
 ThisBuild / scalaVersion  := "3.5.2"
 
 lazy val root = (project in file(".") withId "crypto4s")
+  .settings(
+    publish / skip := true
+  )
   .aggregate(
     core
   )
