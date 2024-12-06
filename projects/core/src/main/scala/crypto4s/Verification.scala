@@ -1,6 +1,6 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.implicits.*
+import crypto4s.implicits.*
 import java.security.Signature
 
 trait Verification[Alg, KeyAlg] {

@@ -1,6 +1,6 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.implicits.*
+import crypto4s.implicits.*
 import java.security.KeyFactory
 import java.security.PrivateKey as JPrivateKey
 import java.security.spec.InvalidKeySpecException
@@ -36,7 +36,7 @@ object PrivateKey {
   }
 }
 
-private[cipher4s] case class JavaPrivateKey[Alg](
+private[crypto4s] case class JavaPrivateKey[Alg](
   algorithm: Alg,
   delegate: JPrivateKey
 ) extends PrivateKey[Alg] {

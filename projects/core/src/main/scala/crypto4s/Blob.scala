@@ -1,4 +1,4 @@
-package cipher4s
+package crypto4s
 
 trait Blob[A] {
   def asBlob(a: A): Array[Byte]

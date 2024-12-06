@@ -1,6 +1,6 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.implicits.*
+import crypto4s.implicits.*
 import java.util.Base64
 import zio.Scope
 import zio.test.Gen

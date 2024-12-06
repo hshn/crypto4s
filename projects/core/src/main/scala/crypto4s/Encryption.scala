@@ -1,4 +1,4 @@
-package cipher4s
+package crypto4s
 
 trait Encryption[Key] {
   def encrypt(key: Key, data: Array[Byte]): Array[Byte]

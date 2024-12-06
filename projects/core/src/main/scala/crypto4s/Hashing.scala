@@ -1,7 +1,7 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.Algorithm.Argon2.Type
-import cipher4s.implicits.*
+import crypto4s.Algorithm.Argon2.Type
+import crypto4s.implicits.*
 import java.security.MessageDigest
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
