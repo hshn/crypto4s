@@ -1,6 +1,6 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.Algorithm.RSA
+import crypto4s.Algorithm.RSA
 
 trait Deserializable[A] {
   def deserialize(a: Array[Byte]): Either[RuntimeException, A]

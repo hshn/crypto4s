@@ -1,4 +1,4 @@
-package cipher4s
+package crypto4s
 
 sealed trait Algorithm
 object Algorithm {

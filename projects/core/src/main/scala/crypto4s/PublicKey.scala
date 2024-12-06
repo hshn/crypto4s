@@ -1,6 +1,6 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.implicits.*
+import crypto4s.implicits.*
 import java.security.PublicKey as JPublicKey
 import java.security.Signature as JSignature
 import javax.crypto.Cipher
@@ -15,7 +15,7 @@ trait PublicKey[Alg] { self =>
   def asJava: JPublicKey
 }
 
-private[cipher4s] case class JavaPublicKey[Alg](
+private[crypto4s] case class JavaPublicKey[Alg](
   algorithm: Alg,
   delegate: JPublicKey
 ) extends PublicKey[Alg] {

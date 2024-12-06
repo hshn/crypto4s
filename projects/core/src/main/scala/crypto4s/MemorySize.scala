@@ -1,4 +1,4 @@
-package cipher4s
+package crypto4s
 
 case class MemorySize(bytes: Int) extends AnyVal {
   def toKb: Int = bytes / 1024

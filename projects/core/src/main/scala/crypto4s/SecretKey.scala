@@ -1,6 +1,6 @@
-package cipher4s
+package crypto4s
 
-import cipher4s.implicits.*
+import crypto4s.implicits.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
@@ -47,7 +47,7 @@ object SecretKey {
 
 }
 
-private[cipher4s] case class JavaSecretKey[Alg](
+private[crypto4s] case class JavaSecretKey[Alg](
   algorithm: Alg,
   delegate: JSecretKey
 ) extends SecretKey[Alg] {
