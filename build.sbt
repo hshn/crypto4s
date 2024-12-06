@@ -19,3 +19,6 @@ lazy val core = (project in file("projects/core") withId "crypto4s-core")
       Libs.zio.testMagnolia % Test
     )
   )
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository                 := "https://s01.oss.sonatype.org/service/local"
