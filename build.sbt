@@ -24,3 +24,4 @@ lazy val core = (project in file("projects/core") withId "crypto4s-core")
   )
 
 ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeCentralHost
+sonatypeRepository                 := "https://s01.oss.sonatype.org/service/local"
