@@ -1,5 +1,7 @@
 package crypto4s
 
+import crypto4s.algorithm.SHA1
+import crypto4s.algorithm.SHA256
 import java.security.MessageDigest
 import java.util
 
@@ -16,16 +18,6 @@ trait Hashed[Alg, A] {
 }
 
 object Hashed {
-  case class SHA1[A](hash: Array[Byte])   extends Hashed[Algorithm.SHA1, A]
-  case class SHA256[A](hash: Array[Byte]) extends Hashed[Algorithm.SHA256, A]
-  case class Argon2[A](
-    hash: Array[Byte],
-    `type`: Algorithm.Argon2.Type,
-    version: Algorithm.Argon2.Version,
-    salt: Option[Array[Byte]],
-    memory: MemorySize,
-    iterations: Int,
-    length: Int,
-    parallelism: Int
-  ) extends Hashed[Algorithm.Argon2, A]
+  case class SHA1[A](hash: Array[Byte])   extends Hashed[algorithm.SHA1, A]
+  case class SHA256[A](hash: Array[Byte]) extends Hashed[algorithm.SHA256, A]
 }

@@ -1,5 +1,6 @@
 package crypto4s
 
+import crypto4s.algorithm.RSA
 import java.security.KeyFactory
 import java.security.PrivateKey as JPrivateKey
 import java.security.spec.InvalidKeySpecException
@@ -19,14 +20,14 @@ sealed trait PrivateKey[Alg] { self =>
 }
 
 object PrivateKey {
-  def RSA(key: Array[Byte]): Either[InvalidKeySpecException, PrivateKey[Algorithm.RSA]] = try {
+  def RSA(key: Array[Byte]): Either[InvalidKeySpecException, PrivateKey[algorithm.RSA]] = try {
     val keySpec    = new PKCS8EncodedKeySpec(key)
     val keyFactory = KeyFactory.getInstance("RSA")
     val privateKey = keyFactory.generatePrivate(keySpec)
 
     Right(
       JavaPrivateKey(
-        algorithm = Algorithm.RSA,
+        algorithm = algorithm.RSA,
         delegate = privateKey
       )
     )

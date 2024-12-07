@@ -10,7 +10,8 @@ lazy val root = (project in file(".") withId "crypto4s")
     publish / skip := true
   )
   .aggregate(
-    core
+    core,
+    bouncycastle
   )
 
 lazy val core = (project in file("projects/core") withId "crypto4s-core")
@@ -20,6 +21,14 @@ lazy val core = (project in file("projects/core") withId "crypto4s-core")
       Libs.zio.test         % Test,
       Libs.zio.testSbt      % Test,
       Libs.zio.testMagnolia % Test
+    )
+  )
+
+lazy val bouncycastle = (project in file("projects/bouncycastle") withId "crypto4s-bouncycastle")
+  .dependsOn(core % "test->test;compile->compile")
+  .settings(
+    libraryDependencies ++= Seq(
+      Libs.bouncycastle.bcpix
     )
   )
 

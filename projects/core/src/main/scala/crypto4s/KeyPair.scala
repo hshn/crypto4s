@@ -1,5 +1,6 @@
 package crypto4s
 
+import crypto4s.algorithm.RSA
 import java.security.KeyPairGenerator
 
 case class KeyPair[Alg](
@@ -19,7 +20,7 @@ case class KeyPair[Alg](
 object KeyPair {
   def RSA(
     keySize: Int = 2048
-  ): KeyPair[Algorithm.RSA] = {
+  ): KeyPair[algorithm.RSA] = {
     val keyGen = KeyPairGenerator.getInstance("RSA")
     keyGen.initialize(keySize)
 
@@ -27,11 +28,11 @@ object KeyPair {
 
     KeyPair(
       privateKey = JavaPrivateKey(
-        algorithm = Algorithm.RSA,
+        algorithm = algorithm.RSA,
         delegate = keyPair.getPrivate
       ),
       publicKey = JavaPublicKey(
-        algorithm = Algorithm.RSA,
+        algorithm = algorithm.RSA,
         delegate = keyPair.getPublic
       )
     )
