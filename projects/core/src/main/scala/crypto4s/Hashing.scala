@@ -1,7 +1,6 @@
 package crypto4s
 
 import crypto4s.Algorithm.Argon2.Type
-import crypto4s.implicits.*
 import java.security.MessageDigest
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
@@ -112,6 +111,7 @@ case class Argon2Hashing[A](
   }
 }
 
+object HashingExtension extends HashingExtension
 trait HashingExtension {
   extension [A](a: A) {
     def hash[Alg](using hashing: Hashing[Alg, A], blob: Blob[A]): hashing.Result = hashing.hash(a)

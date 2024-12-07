@@ -1,7 +1,6 @@
 package crypto4s
 
 import crypto4s.Algorithm.SHA1
-import crypto4s.implicits.*
 import java.util.Base64
 import zio.Scope
 import zio.test.Gen

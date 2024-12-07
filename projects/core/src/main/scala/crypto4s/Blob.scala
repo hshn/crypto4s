@@ -27,6 +27,7 @@ trait BlobInstances {
   }
 }
 
+object BlobExtension extends BlobExtension
 trait BlobExtension {
   extension [A](a: A) {
     def blob(using blob: Blob[A]): Array[Byte] = blob.asBlob(a)

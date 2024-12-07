@@ -1,6 +1,5 @@
 package crypto4s
 
-import crypto4s.implicits.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException

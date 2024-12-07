@@ -23,6 +23,7 @@ object Deserializable {
   }
 }
 
+object DeserializableExtension extends DeserializableExtension
 trait DeserializableExtension {
   extension (a: Array[Byte]) {
     def deserialize[A](using deserializable: Deserializable[A]): Either[RuntimeException, A] = deserializable.deserialize(a)
