@@ -11,27 +11,8 @@ trait Hashing[Alg, A] { self =>
 }
 
 object Hashing {
-  given [A]: Hashing[SHA1, A] = new Hashing[SHA1, A] {
-    override type Result = Hashed.SHA1[A]
-    override def hash(a: A)(using Blob[A]): Hashed.SHA1[A] = {
-      val hash = MessageDigest
-        .getInstance("SHA-1")
-        .digest(a.blob)
-
-      Hashed.SHA1(hash = hash)
-    }
-  }
-
-  given [A]: Hashing[SHA256, A] = new Hashing[SHA256, A] {
-    override type Result = Hashed.SHA256[A]
-    override def hash(a: A)(using Blob[A]): Hashed.SHA256[A] = {
-      val hash = MessageDigest
-        .getInstance("SHA-256")
-        .digest(a.blob)
-
-      Hashed.SHA256(hash = hash)
-    }
-  }
+  given [A]: Hashing[SHA1, A]   = new SHA1MessageDigestHashing[A]
+  given [A]: Hashing[SHA256, A] = new SHA256MessageDigestHashing[A]
 }
 
 object HashingExtension extends HashingExtension

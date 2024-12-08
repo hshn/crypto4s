@@ -1,7 +1,6 @@
 package crypto4s
 
 import crypto4s.algorithm.Argon2
-import crypto4s.algorithm.SHA1
 import zio.Scope
 import zio.test.*
 
