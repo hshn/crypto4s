@@ -1,6 +1,7 @@
 package crypto4s
 
-import crypto4s.implicits.*
+import crypto4s.algorithm.{RS256, RSA}
+
 import java.security.Signature as JSignature
 
 trait Signing[Alg, KeyAlg] {
@@ -9,8 +10,8 @@ trait Signing[Alg, KeyAlg] {
 }
 
 object Signing {
-  given Signing[Algorithm.RS256, Algorithm.RSA] with {
-    override def sign(key: PrivateKey[Algorithm.RSA], data: Array[Byte]): Array[Byte] = {
+  given Signing[RS256, RSA] with {
+    override def sign(key: PrivateKey[RSA], data: Array[Byte]): Array[Byte] = {
       val verifier = JSignature.getInstance("SHA256withRSA")
       verifier.initSign(key.asJava)
       verifier.update(data)

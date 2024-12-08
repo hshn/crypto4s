@@ -1,6 +1,5 @@
 package crypto4s
 
-import crypto4s.implicits.*
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
@@ -18,18 +17,18 @@ trait SecretKey[Alg] {
 }
 
 object SecretKey {
-  def AES(size: Int = 256): SecretKey[Algorithm.AES.type] = {
+  def AES(size: Int = 256): SecretKey[algorithm.AES] = {
     val keyGen = KeyGenerator.getInstance("AES")
     keyGen.init(size)
     val key = keyGen.generateKey()
 
     JavaSecretKey(
-      algorithm = Algorithm.AES,
+      algorithm = algorithm.AES,
       delegate = key
     )
   }
 
-  def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[Algorithm.AES.type]] = {
+  def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES]] = {
     for {
       keySpec <-
         try {
@@ -39,7 +38,7 @@ object SecretKey {
         }
     } yield {
       JavaSecretKey(
-        algorithm = Algorithm.AES,
+        algorithm = algorithm.AES,
         delegate = keySpec
       )
     }

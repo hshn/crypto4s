@@ -1,6 +1,5 @@
 package crypto4s
 
-import crypto4s.implicits.*
 import java.security.PublicKey as JPublicKey
 import java.security.Signature as JSignature
 import javax.crypto.Cipher

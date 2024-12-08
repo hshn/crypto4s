@@ -1,6 +1,7 @@
 package crypto4s
 
-import crypto4s.implicits.*
+import crypto4s.algorithm.{RS256, RSA}
+
 import java.security.Signature
 
 trait Verification[Alg, KeyAlg] {
@@ -9,8 +10,8 @@ trait Verification[Alg, KeyAlg] {
 }
 
 object Verification {
-  given Verification[Algorithm.RS256, Algorithm.RSA] with {
-    override def verify(key: PublicKey[Algorithm.RSA], data: Array[Byte], signature: Array[Byte]): Boolean = {
+  given Verification[RS256, RSA] with {
+    override def verify(key: PublicKey[RSA], data: Array[Byte], signature: Array[Byte]): Boolean = {
       val verifier = Signature.getInstance("SHA256withRSA")
       verifier.initVerify(key.asJava)
       verifier.update(data)
