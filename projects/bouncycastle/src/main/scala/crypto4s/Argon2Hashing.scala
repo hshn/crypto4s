@@ -7,7 +7,7 @@ import crypto4s.algorithm.Argon2
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
 
-case class Argon2Hashing[A](
+case class Argon2Hashing(
   `type`: Argon2.Type,
   version: Argon2.Version,
   salt: Option[Array[Byte]],
@@ -15,17 +15,17 @@ case class Argon2Hashing[A](
   iterations: Int,
   length: Int,
   parallelism: Int
-) extends Hashing[Argon2, A] {
-  override type Result = Argon2Hash[A]
+) extends Hashing[Argon2] {
+  override type Result[A] = Argon2Hash[A]
 
-  def withVersion(version: Argon2.Version): Argon2Hashing[A] = copy(version = version)
-  def withSalt(salt: Array[Byte]): Argon2Hashing[A]          = copy(salt = Some(salt))
-  def withMemory(memory: MemorySize): Argon2Hashing[A]       = copy(memory = memory)
-  def withIterations(iterations: Int): Argon2Hashing[A]      = copy(iterations = iterations)
-  def withLength(length: Int): Argon2Hashing[A]              = copy(length = length)
-  def withParallelism(parallelism: Int): Argon2Hashing[A]    = copy(parallelism = parallelism)
+  def withVersion(version: Argon2.Version): Argon2Hashing = copy(version = version)
+  def withSalt(salt: Array[Byte]): Argon2Hashing          = copy(salt = Some(salt))
+  def withMemory(memory: MemorySize): Argon2Hashing       = copy(memory = memory)
+  def withIterations(iterations: Int): Argon2Hashing      = copy(iterations = iterations)
+  def withLength(length: Int): Argon2Hashing              = copy(length = length)
+  def withParallelism(parallelism: Int): Argon2Hashing    = copy(parallelism = parallelism)
 
-  override def hash(a: A)(using Blob[A]): Argon2Hash[A] = {
+  override def hash[A](a: A)(using Blob[A]): Argon2Hash[A] = {
     val parameters = new Argon2Parameters.Builder(`type` match {
       case Argon2.Type.Argon2d  => Argon2Parameters.ARGON2_d
       case Argon2.Type.Argon2i  => Argon2Parameters.ARGON2_i
@@ -66,7 +66,7 @@ case class Argon2Hashing[A](
 }
 
 object Argon2Hashing {
-  def apply[A](`type`: Argon2.Type = Argon2.Type.Argon2id): Argon2Hashing[A] = new Argon2Hashing[A](
+  def apply(`type`: Argon2.Type = Argon2.Type.Argon2id): Argon2Hashing = new Argon2Hashing(
     `type` = `type`,
     version = Argon2.Version.V13,
     salt = None,

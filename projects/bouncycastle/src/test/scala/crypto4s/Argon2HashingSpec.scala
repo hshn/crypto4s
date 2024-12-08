@@ -30,7 +30,7 @@ object Argon2HashingSpec extends ZIOSpecDefault {
     }
     test("Custom hashing") {
       checkAll(Gen.string, Gen.listOf1(Gen.byte)) { case (string, salt) =>
-        given Argon2Hashing[String] = Argon2Hashing[String]()
+        given Argon2Hashing = Argon2Hashing()
           .withVersion(Argon2.Version.V10)
           .withSalt(salt.toArray)
           .withIterations(3)
