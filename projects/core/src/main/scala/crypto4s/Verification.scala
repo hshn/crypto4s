@@ -1,7 +1,7 @@
 package crypto4s
 
-import crypto4s.algorithm.{RS256, RSA}
-
+import crypto4s.algorithm.RS256
+import crypto4s.algorithm.RSA
 import java.security.Signature
 
 trait Verification[Alg, KeyAlg] {

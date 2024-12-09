@@ -10,8 +10,8 @@ import javax.crypto.spec.SecretKeySpec
 trait SecretKey[Alg] {
   val algorithm: Alg
 
-  def encrypt[A: Blob](a: A): Encrypted[A]
-  def decrypt[A: Deserializable](encrypted: Encrypted[A]): Either[RuntimeException, A]
+  def encrypt[A: Blob](a: A): Encrypted[Alg, A]
+  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A]): Either[RuntimeException, A]
 
   def asJava: JSecretKey
 }
@@ -51,14 +51,14 @@ private[crypto4s] case class JavaSecretKey[Alg](
   delegate: JSecretKey
 ) extends SecretKey[Alg] {
 
-  override def encrypt[A: Blob](a: A): Encrypted[A] = {
+  override def encrypt[A: Blob](a: A): Encrypted[Alg, A] = {
     val cipher = Cipher.getInstance(delegate.getAlgorithm)
     cipher.init(Cipher.ENCRYPT_MODE, delegate)
 
-    Encrypted[A](cipher.doFinal(a.blob))
+    Encrypted(cipher.doFinal(a.blob))
   }
 
-  override def decrypt[A: Deserializable](encrypted: Encrypted[A]): Either[RuntimeException, A] = try {
+  override def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A]): Either[RuntimeException, A] = try {
     val cipher = Cipher.getInstance(delegate.getAlgorithm)
     cipher.init(Cipher.DECRYPT_MODE, delegate)
 

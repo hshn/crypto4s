@@ -1,7 +1,7 @@
 package crypto4s
 
-import crypto4s.algorithm.{SHA1, SHA256}
-
+import crypto4s.algorithm.SHA1
+import crypto4s.algorithm.SHA256
 import java.util.Base64
 import zio.Scope
 import zio.test.Gen

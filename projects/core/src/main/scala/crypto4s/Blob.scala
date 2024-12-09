@@ -16,8 +16,8 @@ trait BlobInstances {
   given [Alg, A]: Blob[Hashed[Alg, A]] with {
     override def asBlob(a: Hashed[Alg, A]): Array[Byte] = a.hash
   }
-  given [A]: Blob[Encrypted[A]] with {
-    override def asBlob(a: Encrypted[A]): Array[Byte] = a.blob
+  given [Alg, A]: Blob[Encrypted[Alg, A]] with {
+    override def asBlob(a: Encrypted[Alg, A]): Array[Byte] = a.blob
   }
   given [Alg]: Blob[PrivateKey[Alg]] with {
     override def asBlob(a: PrivateKey[Alg]): Array[Byte] = a.asJava.getEncoded

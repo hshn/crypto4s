@@ -1,6 +1,7 @@
 package crypto4s
 
-import crypto4s.algorithm.{AES, RSA}
+import crypto4s.algorithm.AES
+import crypto4s.algorithm.RSA
 
 trait Deserializable[A] {
   def deserialize(a: Array[Byte]): Either[RuntimeException, A]
