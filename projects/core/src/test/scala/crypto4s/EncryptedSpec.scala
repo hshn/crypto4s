@@ -9,9 +9,9 @@ import zio.test.assertTrue
 object EncryptedSpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("Encrypted") {
     test("equals") {
-      val a = Encrypted[String](Array(1, 2, 3))
-      val b = Encrypted[String](Array(2, 3, 4))
-      val c = Encrypted[String](Array(1, 2, 3))
+      val a = Encrypted[Any, String](Array(1, 2, 3))
+      val b = Encrypted[Any, String](Array(2, 3, 4))
+      val c = Encrypted[Any, String](Array(1, 2, 3))
 
       assertTrue(
         a != b,
@@ -20,9 +20,9 @@ object EncryptedSpec extends ZIOSpecDefault {
       )
     }
     test("hashCode()") {
-      val a = Encrypted[String](Array(1, 2, 3))
-      val b = Encrypted[String](Array(2, 3, 4))
-      val c = Encrypted[String](Array(1, 2, 3))
+      val a = Encrypted[Any, String](Array(1, 2, 3))
+      val b = Encrypted[Any, String](Array(2, 3, 4))
+      val c = Encrypted[Any, String](Array(1, 2, 3))
 
       assertTrue(
         a.## != b.##,
