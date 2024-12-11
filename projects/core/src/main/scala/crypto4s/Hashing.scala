@@ -10,6 +10,8 @@ trait Hashing[Alg] { self =>
 }
 
 object Hashing {
+  def apply[Alg](using hashing: Hashing[Alg]): Hashing[Alg] = hashing
+
   given [A]: Hashing[SHA1]   = SHA1MessageDigestHashing
   given [A]: Hashing[SHA256] = SHA256MessageDigestHashing
 }
