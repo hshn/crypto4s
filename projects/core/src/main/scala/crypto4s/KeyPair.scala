@@ -1,14 +1,12 @@
 package crypto4s
 
-import crypto4s.algorithm.RSA
+import java.security.KeyPair as JKeyPair
 import java.security.KeyPairGenerator
 
 case class KeyPair[Alg](
   privateKey: PrivateKey[Alg],
   publicKey: PublicKey[Alg]
 ) {
-  val algorithm: Alg = privateKey.algorithm
-
   def encrypt[A: Blob](a: A): Encrypted[Alg, A]                                             = publicKey.encrypt(a)
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A]): Either[RuntimeException, A] = privateKey.decrypt(encrypted)
 
@@ -26,15 +24,13 @@ object KeyPair {
 
     val keyPair = keyGen.generateKeyPair()
 
-    KeyPair(
-      privateKey = JavaPrivateKey(
-        algorithm = algorithm.RSA,
-        delegate = keyPair.getPrivate
-      ),
-      publicKey = JavaPublicKey(
-        algorithm = algorithm.RSA,
-        delegate = keyPair.getPublic
-      )
-    )
+    fromJava(keyPair)
   }
+
+  def fromJava[Alg](
+    keyPair: JKeyPair
+  ): KeyPair[Alg] = KeyPair(
+    privateKey = PrivateKey.fromJava(keyPair.getPrivate),
+    publicKey = PublicKey.fromJava(keyPair.getPublic)
+  )
 }

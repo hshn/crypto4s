@@ -10,9 +10,6 @@ import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
 
 sealed trait PrivateKey[Alg] { self =>
-  type Algorithm = Alg
-  val algorithm: Alg
-
   def sign[A: Blob, SignAlg](a: A)(using singing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = singing.sign[A](key = self, a = a)
   def decrypt[A: Deserializable](data: Encrypted[Alg, A]): Either[RuntimeException, A]
 
@@ -25,19 +22,17 @@ object PrivateKey {
     val keyFactory = KeyFactory.getInstance("RSA")
     val privateKey = keyFactory.generatePrivate(keySpec)
 
-    Right(
-      JavaPrivateKey(
-        algorithm = algorithm.RSA,
-        delegate = privateKey
-      )
-    )
+    Right(fromJava(privateKey))
   } catch {
     case e: InvalidKeySpecException => Left(e)
   }
+
+  def fromJava[Alg](key: JPrivateKey): PrivateKey[Alg] = JavaPrivateKey(
+    delegate = key
+  )
 }
 
 private[crypto4s] case class JavaPrivateKey[Alg](
-  algorithm: Alg,
   delegate: JPrivateKey
 ) extends PrivateKey[Alg] {
 
