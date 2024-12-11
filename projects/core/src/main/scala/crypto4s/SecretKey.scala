@@ -8,8 +8,6 @@ import javax.crypto.SecretKey as JSecretKey
 import javax.crypto.spec.SecretKeySpec
 
 trait SecretKey[Alg] {
-  val algorithm: Alg
-
   def encrypt[A: Blob](a: A): Encrypted[Alg, A]
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A]): Either[RuntimeException, A]
 
@@ -22,10 +20,7 @@ object SecretKey {
     keyGen.init(size)
     val key = keyGen.generateKey()
 
-    JavaSecretKey(
-      algorithm = algorithm.AES,
-      delegate = key
-    )
+    fromJava(key)
   }
 
   def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES]] = {
@@ -37,17 +32,16 @@ object SecretKey {
           case e: IllegalArgumentException => Left(e)
         }
     } yield {
-      JavaSecretKey(
-        algorithm = algorithm.AES,
-        delegate = keySpec
-      )
+      fromJava(keySpec)
     }
   }
 
+  def fromJava(key: JSecretKey): SecretKey[algorithm.AES] = JavaSecretKey(
+    delegate = key
+  )
 }
 
 private[crypto4s] case class JavaSecretKey[Alg](
-  algorithm: Alg,
   delegate: JSecretKey
 ) extends SecretKey[Alg] {
 

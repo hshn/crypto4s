@@ -5,8 +5,6 @@ import java.security.Signature as JSignature
 import javax.crypto.Cipher
 
 trait PublicKey[Alg] { self =>
-  val algorithm: Alg
-
   def encrypt[A: Blob](a: A): Encrypted[Alg, A]
   def verify[A: Blob, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
     verification.verify(key = self, a = a, signature = signature)
@@ -14,8 +12,13 @@ trait PublicKey[Alg] { self =>
   def asJava: JPublicKey
 }
 
+object PublicKey {
+  def fromJava[Alg](key: JPublicKey): PublicKey[Alg] = JavaPublicKey(
+    delegate = key
+  )
+}
+
 private[crypto4s] case class JavaPublicKey[Alg](
-  algorithm: Alg,
   delegate: JPublicKey
 ) extends PublicKey[Alg] {
 
