@@ -1,7 +1,9 @@
 package crypto4s
 
+import java.security.KeyFactory
 import java.security.PublicKey as JPublicKey
-import java.security.Signature as JSignature
+import java.security.spec.InvalidKeySpecException
+import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
 
 trait PublicKey[Alg] { self =>
@@ -13,6 +15,16 @@ trait PublicKey[Alg] { self =>
 }
 
 object PublicKey {
+  def RSA(key: Array[Byte]): Either[InvalidKeySpecException, PublicKey[algorithm.RSA]] = try {
+    val keySpec    = new X509EncodedKeySpec(key)
+    val keyFactory = KeyFactory.getInstance("RSA")
+    val publicKey  = keyFactory.generatePublic(keySpec)
+
+    Right(fromJava(publicKey))
+  } catch {
+    case e: InvalidKeySpecException => Left(e)
+  }
+
   def fromJava[Alg](key: JPublicKey): PublicKey[Alg] = JavaPublicKey(
     delegate = key
   )

@@ -1,6 +1,5 @@
 package crypto4s
 
-import crypto4s.algorithm.RSA
 import java.security.KeyFactory
 import java.security.PrivateKey as JPrivateKey
 import java.security.spec.InvalidKeySpecException
