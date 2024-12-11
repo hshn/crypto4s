@@ -19,6 +19,6 @@ object Hashing {
 object HashingExtension extends HashingExtension
 trait HashingExtension {
   extension [A](a: A) {
-    def hash[Alg](using hashing: Hashing[Alg], blob: Blob[A]): hashing.Result[A] = hashing.hash(a)
+    def hashed[Alg](using hashing: Hashing[Alg], blob: Blob[A]): hashing.Result[A] = hashing.hash(a)
   }
 }

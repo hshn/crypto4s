@@ -8,9 +8,9 @@ object Argon2HashingSpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("Argon2Hashing") {
     test("Default hashing") {
       checkAll(Gen.string) { string =>
-        val hash1 = string.hash[Argon2]
-        val hash2 = (string + "a").hash[Argon2]
-        val hash3 = string.hash[Argon2]
+        val hash1 = string.hashed[Argon2]
+        val hash2 = (string + "a").hashed[Argon2]
+        val hash3 = string.hashed[Argon2]
 
         assertTrue(
           !hash1.verify(hash2),
@@ -37,9 +37,9 @@ object Argon2HashingSpec extends ZIOSpecDefault {
           .withLength(40)
           .withParallelism(2)
 
-        val hash1 = string.hash[Argon2]
-        val hash2 = (string + "a").hash[Argon2]
-        val hash3 = string.hash[Argon2]
+        val hash1 = string.hashed[Argon2]
+        val hash2 = (string + "a").hashed[Argon2]
+        val hash3 = string.hashed[Argon2]
 
         assertTrue(
           !hash1.verify(hash2),
