@@ -17,6 +17,11 @@ trait Certificate[Alg] {
 }
 
 object Certificate {
+  def make[Alg, SigAlg](
+  )(using Signing[SigAlg, Alg]) = {
+    ???
+  }
+
   def make[Alg](data: Array[Byte]): Either[CertificateException, Certificate[Alg]] = try {
     val certificate = CertificateFactory
       .getInstance("X.509")
@@ -26,6 +31,10 @@ object Certificate {
     Right(new JavaCertificate(certificate))
   } catch {
     case e: CertificateException => Left(e)
+  }
+
+  given [Alg]: Blob[Certificate[Alg]] with {
+    override def asBlob(a: Certificate[Alg]): Array[Byte] = a.asJava.getEncoded
   }
 }
 
