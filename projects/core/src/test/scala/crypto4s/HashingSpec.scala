@@ -43,5 +43,26 @@ object HashingSpec extends ZIOSpecDefault {
         )
       }
     }
+    test("equalities") {
+      val strings = for {
+        str1 <- Gen.string
+        str2 <- Gen.string if str1 != str2
+      } yield {
+        (str1, str2)
+      }
+
+      checkAll(strings) { case (str1, str2) =>
+        val hash1 = str1.hashed[SHA1]
+        val hash2 = str1.hashed[SHA1]
+        val hash3 = str2.hashed[SHA1]
+
+        assertTrue(
+          hash1 == hash2,
+          hash1 != hash3,
+          hash1.## == hash2.##,
+          hash1.## != hash3.##
+        )
+      }
+    }
   }
 }
