@@ -1,7 +1,5 @@
 package crypto4s
 
-import crypto4s.Hashed
-import crypto4s.MemorySize
 import crypto4s.algorithm.Argon2
 
 case class Argon2Hash[A](
@@ -13,4 +11,18 @@ case class Argon2Hash[A](
   iterations: Int,
   length: Int,
   parallelism: Int
-) extends Hashed[Argon2, A]
+) extends Hashed[Argon2, A] {
+  override def verify(of: A)(using Hashing[Argon2], Blob[A]): Boolean = {
+    val hashing = Argon2Hashing(
+      `type` = `type`,
+      version = version,
+      salt = salt,
+      memory = memory,
+      iterations = iterations,
+      length = length,
+      parallelism = parallelism
+    )
+
+    verify(hashing.hash(of))
+  }
+}
