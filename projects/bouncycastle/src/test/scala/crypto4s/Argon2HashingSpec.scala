@@ -37,9 +37,17 @@ object Argon2HashingSpec extends ZIOSpecDefault {
           .withLength(40)
           .withParallelism(2)
 
+        val hashing2 = Argon2Hashing()
+          .withVersion(Argon2.Version.V10)
+          .withSalt(salt.toArray)
+          .withIterations(3)
+          .withLength(45)
+          .withParallelism(2)
+
         val hash1 = string.hashed[Argon2]
         val hash2 = (string + "a").hashed[Argon2]
         val hash3 = string.hashed[Argon2]
+        val hash4 = string.hashed(using hashing = hashing2)
 
         assertTrue(
           !hash1.verify(hash2),
@@ -53,7 +61,9 @@ object Argon2HashingSpec extends ZIOSpecDefault {
           hash1.memory == MemorySize.mb(64),
           hash1.iterations == 3,
           hash1.length == 40,
-          hash1.parallelism == 2
+          hash1.parallelism == 2,
+          hash4.verify(of = string),
+          !hash4.verify(of = string + "a")
         )
       }
     }

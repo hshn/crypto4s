@@ -1,8 +1,5 @@
 package crypto4s
 
-import crypto4s.Blob
-import crypto4s.Hashing
-import crypto4s.MemorySize
 import crypto4s.algorithm.Argon2
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
