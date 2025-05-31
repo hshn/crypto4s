@@ -12,6 +12,5 @@ case object SHA1
 type SHA256 = SHA256.type
 case object SHA256
 
-// signing algorithms
 type RS256 = RS256.type
 case object RS256

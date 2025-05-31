@@ -12,17 +12,19 @@ trait Signing[Alg, KeyAlg] {
 }
 
 object Signing {
-  given Signing[RS256, RSA] = new JavaSigning(JSignature.getInstance("SHA256withRSA"))
+  given Signing[RS256, RSA] = new JavaSigning("SHA256withRSA")
 }
 
 private[crypto4s] class JavaSigning[Alg, KeyAlg](
-  delegate: JSignature
+  algorithm: String
 ) extends Signing[Alg, KeyAlg] {
   override def sign(key: PrivateKey[KeyAlg], data: Array[Byte]): Array[Byte] = {
-    delegate.initSign(key.asJava)
-    delegate.update(data)
-    delegate.sign()
+    val signature = JSignature.getInstance(algorithm)
+
+    signature.initSign(key.asJava)
+    signature.update(data)
+    signature.sign()
   }
 
-  override val asJava: JSignature = delegate
+  override def asJava: JSignature = JSignature.getInstance(algorithm)
 }
