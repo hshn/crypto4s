@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
+  "packages": [
+    "temurin-bin@21.0.6",
+    "sbt@1.10.10",
+    "oh-my-zsh@2025-03-11",
+    "git@2.48.1"
+  ],
+  "shell": {
+    "init_hook": [],
+    "scripts": {}
+  }
+}
