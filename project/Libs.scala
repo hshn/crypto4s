@@ -10,6 +10,6 @@ object Libs {
   }
 
   object bouncycastle {
-    val bcpix = "org.bouncycastle" % "bcpkix-jdk18on" % "1.80"
+    val bcpix = "org.bouncycastle" % "bcpkix-jdk18on" % "1.81"
   }
 }
