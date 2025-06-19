@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
   "packages": [
     "temurin-bin@22.0.1",
-    "sbt@1.11.1",
+    "sbt@1.11.2",
     "oh-my-zsh@2025-03-11",
     "git@2.49.0"
   ],
