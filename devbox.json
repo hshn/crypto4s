@@ -4,7 +4,7 @@
     "temurin-bin@22.0.1",
     "sbt@1.11.3",
     "oh-my-zsh@2025-03-11",
-    "git@2.50.0"
+    "git@2.50.1"
   ],
   "shell": {
     "init_hook": [],
