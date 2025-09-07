@@ -2,7 +2,7 @@ import sbt._
 
 object Libs {
   object zio {
-    private val version = "2.1.20"
+    private val version = "2.1.21"
 
     val test         = "dev.zio" %% "zio-test"          % version
     val testSbt      = "dev.zio" %% "zio-test-sbt"      % version
