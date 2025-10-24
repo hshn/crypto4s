@@ -50,7 +50,7 @@ jobs:
     - name: test
       run: sbt "Test / test"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: success() || failure()
       with:
         name: test-reports
