@@ -27,8 +27,10 @@ trait BlobInstances {
   given Blob[String]                      = Blob.instance(_.getBytes)
   given [Alg, A]: Blob[Hashed[Alg, A]]    = Blob.instance(_.hash)
   given [Alg, A]: Blob[Encrypted[Alg, A]] = Blob.instance(_.blob)
+  given [Alg, A]: Blob[Maced[Alg, A]]     = Blob.instance(_.mac)
   given [Alg]: Blob[PrivateKey[Alg]]      = Blob.instance(_.asJava.getEncoded)
   given [Alg]: Blob[SecretKey[Alg]]       = Blob.instance(_.asJava.getEncoded)
+  given [Alg]: Blob[MacSecretKey[Alg]]    = Blob.instance(_.asJava.getEncoded)
 }
 
 object BlobExtension extends BlobExtension
