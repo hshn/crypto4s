@@ -15,3 +15,10 @@ case object SHA256
 // signing algorithms
 type RS256 = RS256.type
 case object RS256
+
+// mac algorithms
+type HmacSHA1 = HmacSHA1.type
+case object HmacSHA1
+
+type HmacSHA256 = HmacSHA256.type
+case object HmacSHA256
