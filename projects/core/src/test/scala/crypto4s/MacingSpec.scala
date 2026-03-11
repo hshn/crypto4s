@@ -90,6 +90,32 @@ object MacingSpec extends ZIOSpecDefault {
         )
       }
     }
+    test("MacKey.hmacSHA1() generates a usable key") {
+      val key   = MacKey.hmacSHA1()
+      val maced = "hello".maced[HmacSHA1](key)
+
+      assertTrue(
+        maced.mac.length == 20,
+        maced.verify("hello".maced[HmacSHA1](key))
+      )
+    }
+    test("MacKey.hmacSHA256() generates a usable key") {
+      val key   = MacKey.hmacSHA256()
+      val maced = "hello".maced[HmacSHA256](key)
+
+      assertTrue(
+        maced.mac.length == 32,
+        maced.verify("hello".maced[HmacSHA256](key))
+      )
+    }
+    test("MacKey.hmacSHA256() generates unique keys") {
+      val key1 = MacKey.hmacSHA256()
+      val key2 = MacKey.hmacSHA256()
+      val mac1 = "hello".maced[HmacSHA256](key1)
+      val mac2 = "hello".maced[HmacSHA256](key2)
+
+      assertTrue(!mac1.verify(mac2))
+    }
     test("equalities") {
       val strings = for {
         str1 <- Gen.string
