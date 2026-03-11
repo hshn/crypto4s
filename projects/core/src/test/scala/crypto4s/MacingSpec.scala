@@ -16,7 +16,7 @@ object MacingSpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("Macing") {
     test("HmacSHA1: same key and data produce verifiable MAC") {
       checkAll(Gen.string, genKey) { (string, keyBytes) =>
-        val key  = MacSecretKey.hmacSHA1(keyBytes)
+        val key  = MacKey.hmacSHA1(keyBytes)
         val mac1 = string.maced[HmacSHA1](key)
         val mac2 = string.maced[HmacSHA1](key)
 
@@ -29,7 +29,7 @@ object MacingSpec extends ZIOSpecDefault {
     }
     test("HmacSHA1: different data produce different MACs") {
       checkAll(Gen.string, genKey) { (string, keyBytes) =>
-        val key  = MacSecretKey.hmacSHA1(keyBytes)
+        val key  = MacKey.hmacSHA1(keyBytes)
         val mac1 = string.maced[HmacSHA1](key)
         val mac2 = (string + "a").maced[HmacSHA1](key)
 
@@ -46,15 +46,15 @@ object MacingSpec extends ZIOSpecDefault {
       } yield (key1, key2)
 
       checkAll(Gen.string, genTwoKeys) { case (string, (keyBytes1, keyBytes2)) =>
-        val mac1 = string.maced[HmacSHA1](MacSecretKey.hmacSHA1(keyBytes1))
-        val mac2 = string.maced[HmacSHA1](MacSecretKey.hmacSHA1(keyBytes2))
+        val mac1 = string.maced[HmacSHA1](MacKey.hmacSHA1(keyBytes1))
+        val mac2 = string.maced[HmacSHA1](MacKey.hmacSHA1(keyBytes2))
 
         assertTrue(!mac1.verify(mac2))
       }
     }
     test("HmacSHA256: same key and data produce verifiable MAC") {
       checkAll(Gen.string, genKey) { (string, keyBytes) =>
-        val key  = MacSecretKey.hmacSHA256(keyBytes)
+        val key  = MacKey.hmacSHA256(keyBytes)
         val mac1 = string.maced[HmacSHA256](key)
         val mac2 = string.maced[HmacSHA256](key)
 
@@ -67,7 +67,7 @@ object MacingSpec extends ZIOSpecDefault {
     }
     test("HmacSHA256: different data produce different MACs") {
       checkAll(Gen.string, genKey) { (string, keyBytes) =>
-        val key  = MacSecretKey.hmacSHA256(keyBytes)
+        val key  = MacKey.hmacSHA256(keyBytes)
         val mac1 = string.maced[HmacSHA256](key)
         val mac2 = (string + "a").maced[HmacSHA256](key)
 
@@ -79,7 +79,7 @@ object MacingSpec extends ZIOSpecDefault {
     }
     test("HmacSHA256: Blob conversion") {
       checkAll(Gen.string, genKey) { (string, keyBytes) =>
-        val key    = MacSecretKey.hmacSHA256(keyBytes)
+        val key    = MacKey.hmacSHA256(keyBytes)
         val maced  = string.maced[HmacSHA256](key)
         val asBlob = maced.blob
         val asHex  = maced.asHexString
@@ -97,7 +97,7 @@ object MacingSpec extends ZIOSpecDefault {
       } yield (str1, str2)
 
       checkAll(strings, genKey) { case ((str1, str2), keyBytes) =>
-        val key  = MacSecretKey.hmacSHA256(keyBytes)
+        val key  = MacKey.hmacSHA256(keyBytes)
         val mac1 = str1.maced[HmacSHA256](key)
         val mac2 = str1.maced[HmacSHA256](key)
         val mac3 = str2.maced[HmacSHA256](key)

@@ -30,7 +30,7 @@ trait BlobInstances {
   given [Alg, A]: Blob[Maced[Alg, A]]     = Blob.instance(_.mac)
   given [Alg]: Blob[PrivateKey[Alg]]      = Blob.instance(_.asJava.getEncoded)
   given [Alg]: Blob[SecretKey[Alg]]       = Blob.instance(_.asJava.getEncoded)
-  given [Alg]: Blob[MacSecretKey[Alg]]    = Blob.instance(_.asJava.getEncoded)
+  given [Alg]: Blob[MacKey[Alg]]    = Blob.instance(_.asJava.getEncoded)
 }
 
 object BlobExtension extends BlobExtension
