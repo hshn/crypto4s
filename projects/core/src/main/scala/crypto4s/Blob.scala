@@ -1,45 +1,26 @@
 package crypto4s
 
+import java.security.MessageDigest
 import java.util.Base64
 
-trait Blob[-A] { self =>
-  def asBlob(a: A): Array[Byte]
+final class Blob private[crypto4s] (private val bytes: Array[Byte]) {
+  def length: Int              = bytes.length
+  def toByteArray: Array[Byte] = bytes.clone()
+  def toHexString: String      = bytes.map(b => "%02x".format(b & 0xff)).mkString
+  def toBase64: Blob           = Blob.wrap(Base64.getEncoder.encode(bytes))
+  def toUrlBase64: Blob        = Blob.wrap(Base64.getUrlEncoder.withoutPadding.encode(bytes))
+  def toUtf8String: String     = new String(bytes, java.nio.charset.StandardCharsets.UTF_8)
 
-  def contraMap[B](f: B => A): Blob[B] = new Blob[B] {
-    override def asBlob(b: B): Array[Byte] = self.asBlob(f(b))
+  override def equals(obj: Any): Boolean = obj match {
+    case other: Blob => MessageDigest.isEqual(bytes, other.bytes)
+    case _           => false
   }
 
-  def asString(a: A): String         = new String(asBlob(a))
-  def asHexString(a: A): String      = asBlob(a).map("%02x".format(_)).mkString
-  def asBase64(a: A): Array[Byte]    = Base64.getEncoder.encode(asBlob(a))
-  def asUrlBase64(a: A): Array[Byte] = Base64.getUrlEncoder.withoutPadding.encode(asBlob(a))
+  override def hashCode(): Int = java.util.Arrays.hashCode(bytes)
+  override def toString: String = toHexString
 }
 
-object Blob extends BlobInstances {
-  def apply[A](using blob: Blob[A]): Blob[A] = blob
-  def instance[A](f: A => Array[Byte]): Blob[A] = new Blob[A] {
-    override def asBlob(a: A): Array[Byte] = f(a)
-  }
-}
-
-trait BlobInstances {
-  given Blob[Array[Byte]]                 = Blob.instance(identity)
-  given Blob[String]                      = Blob.instance(_.getBytes)
-  given [Alg, A]: Blob[Hashed[Alg, A]]    = Blob.instance(_.hash)
-  given [Alg, A]: Blob[Encrypted[Alg, A]] = Blob.instance(_.blob)
-  given [Alg, A]: Blob[Maced[Alg, A]]     = Blob.instance(_.mac)
-  given [Alg]: Blob[PrivateKey[Alg]]      = Blob.instance(_.asJava.getEncoded)
-  given [Alg]: Blob[SecretKey[Alg]]       = Blob.instance(_.asJava.getEncoded)
-  given [Alg]: Blob[MacKey[Alg]]    = Blob.instance(_.asJava.getEncoded)
-}
-
-object BlobExtension extends BlobExtension
-trait BlobExtension {
-  extension [A](a: A) {
-    def blob(using blob: Blob[A]): Array[Byte]        = blob.asBlob(a)
-    def asString(using blob: Blob[A]): String         = blob.asString(a)
-    def asHexString(using blob: Blob[A]): String      = blob.asHexString(a)
-    def asBase64(using blob: Blob[A]): Array[Byte]    = blob.asBase64(a)
-    def asUrlBase64(using blob: Blob[A]): Array[Byte] = blob.asUrlBase64(a)
-  }
+object Blob {
+  def apply(bytes: Array[Byte]): Blob = new Blob(bytes.clone())
+  private[crypto4s] def wrap(bytes: Array[Byte]): Blob = new Blob(bytes)
 }

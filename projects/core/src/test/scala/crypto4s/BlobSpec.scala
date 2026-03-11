@@ -1,8 +1,5 @@
 package crypto4s
 
-import crypto4s.algorithm.SHA256
-import java.time.Instant
-import java.util.Base64
 import zio.Scope
 import zio.test.Gen
 import zio.test.Spec
@@ -13,49 +10,45 @@ import zio.test.checkAll
 
 object BlobSpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("Blob") {
-    test("contraMap") {
-      given Blob[Instant] = Blob[String].contraMap(_.toString)
+    test("equals: same content") {
+      checkAll(Gen.listOf(Gen.byte)) { bytes =>
+        val arr = bytes.toArray
+        val a   = Blob(arr)
+        val b   = Blob(arr)
 
-      checkAll(Gen.instant) { instant =>
-        assertTrue(
-          instant.blob sameElements instant.toString.getBytes
-        )
+        assertTrue(a == b)
       }
     }
-    test("toHexString") {
-      checkAll(Gen.string) { string =>
-        val hash = string.hashed[SHA256]
-        val hex  = hash.asHexString
+    test("equals: different content") {
+      val gen = for {
+        b1 <- Gen.listOf1(Gen.byte).map(_.toArray)
+        b2 <- Gen.listOf1(Gen.byte).map(_.toArray) if !java.util.Arrays.equals(b1, b2)
+      } yield (b1, b2)
 
-        assertTrue(
-          hex.length == 64,
-          hex.matches("[0-9a-f]+")
-        )
+      checkAll(gen) { case (b1, b2) =>
+        assertTrue(Blob(b1) != Blob(b2))
       }
     }
-    test("toBase64String") {
-      checkAll(Gen.string) { string =>
-        val hash    = string.hashed[SHA256]
-        val base64  = hash.asBase64.asString
-        val decoded = Base64.getDecoder.decode(base64)
-
-        assertTrue(
-          base64.matches("[A-Za-z0-9+/]+=*"),
-          decoded == hash.hash
-        )
+    test("hashCode: same content produces same hashCode") {
+      checkAll(Gen.listOf(Gen.byte)) { bytes =>
+        val arr = bytes.toArray
+        assertTrue(Blob(arr).## == Blob(arr).##)
       }
     }
-    test("toUrlBase64String") {
-      checkAll(Gen.string) { string =>
-        val hash    = string.hashed[SHA256]
-        val base64  = hash.asUrlBase64.asString
-        val decoded = Base64.getUrlDecoder.decode(base64)
+    test("toString: hex representation") {
+      val blob = Blob(Array[Byte](0x0a, 0x1b, 0x2c))
+      assertTrue(blob.toString == "0a1b2c")
+    }
+    test("toByteArray: defensive copy") {
+      val original = Array[Byte](1, 2, 3)
+      val blob     = Blob(original)
+      original(0) = 99.toByte
 
-        assertTrue(
-          base64.matches("[A-Za-z0-9_-]+"),
-          decoded == hash.hash
-        )
-      }
+      assertTrue(blob.toByteArray(0) == 1.toByte)
+    }
+    test("toUtf8String") {
+      val blob = Blob("hello".getBytes(java.nio.charset.StandardCharsets.UTF_8))
+      assertTrue(blob.toUtf8String == "hello")
     }
   }
 }

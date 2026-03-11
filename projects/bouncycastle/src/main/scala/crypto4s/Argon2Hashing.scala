@@ -22,7 +22,7 @@ case class Argon2Hashing(
   def withLength(length: Int): Argon2Hashing              = copy(length = length)
   def withParallelism(parallelism: Int): Argon2Hashing    = copy(parallelism = parallelism)
 
-  override def hash[A](a: A)(using Blob[A]): Argon2Hash[A] = {
+  override def hash[A](a: A)(using BlobEncoder[A]): Argon2Hash[A] = {
     val parameters = new Argon2Parameters.Builder(`type` match {
       case Argon2.Type.Argon2d  => Argon2Parameters.ARGON2_d
       case Argon2.Type.Argon2i  => Argon2Parameters.ARGON2_i
@@ -35,7 +35,6 @@ case class Argon2Hashing(
       .withMemoryAsKB(memory.toKb)
       .withIterations(iterations)
       .withParallelism(parallelism)
-      .withParallelism(parallelism)
 
     val generator = new Argon2BytesGenerator()
     generator.init(parameters.build())
@@ -43,14 +42,14 @@ case class Argon2Hashing(
     val hash = new Array[Byte](length)
 
     generator.generateBytes(
-      a.blob,
+      a.blob.toByteArray,
       hash,
       0,
       hash.length
     )
 
     Argon2Hash(
-      hash = hash,
+      hash = Blob.wrap(hash),
       `type` = `type`,
       version = version,
       salt = salt,

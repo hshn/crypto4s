@@ -6,7 +6,7 @@ import java.security.Signature as JSignature
 
 trait Signing[Alg, KeyAlg] {
   def sign(key: PrivateKey[KeyAlg], data: Array[Byte]): Array[Byte]
-  def sign[A: Blob](key: PrivateKey[KeyAlg], a: A): Signed[Alg, A] = Signed(sign(key, a.blob))
+  def sign[A: BlobEncoder](key: PrivateKey[KeyAlg], a: A): Signed[Alg, A] = Signed(Blob.wrap(sign(key, a.blob.toByteArray)))
 }
 
 object Signing {

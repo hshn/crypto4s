@@ -7,10 +7,10 @@ import java.security.MessageDigest
 abstract class MessageDigestHashing[Alg](algorithmName: String) extends Hashing[Alg] {
   override type Result[A] = Hashed[Alg, A]
 
-  override def hash[A](a: A)(using Blob[A]): Hashed[Alg, A] = {
+  override def hash[A](a: A)(using BlobEncoder[A]): Hashed[Alg, A] = {
     val hash = MessageDigest
       .getInstance(algorithmName)
-      .digest(a.blob)
+      .digest(a.blob.toByteArray)
 
     Hashed[Alg, A](hash = hash)
   }

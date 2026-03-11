@@ -81,10 +81,10 @@ object MacingSpec extends ZIOSpecDefault {
       checkAll(Gen.string, genHmacSHA256Key) { (string, key) =>
         val maced  = string.maced[HmacSHA256](key)
         val asBlob = maced.blob
-        val asHex  = maced.asHexString
+        val asHex  = maced.blob.toHexString
 
         assertTrue(
-          asBlob.sameElements(maced.mac),
+          asBlob == maced.mac,
           asHex.length == 64
         )
       }

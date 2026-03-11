@@ -9,7 +9,7 @@ import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
 
 sealed trait PrivateKey[Alg] { self =>
-  def sign[A: Blob, SignAlg](a: A)(using singing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = singing.sign[A](key = self, a = a)
+  def sign[A: BlobEncoder, SignAlg](a: A)(using singing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = singing.sign[A](key = self, a = a)
   def decrypt[A: Deserializable](data: Encrypted[Alg, A]): Either[RuntimeException, A]
 
   def asJava: JPrivateKey
@@ -38,7 +38,7 @@ private[crypto4s] case class JavaPrivateKey[Alg](
   override def decrypt[A: Deserializable](data: Encrypted[Alg, A]): Either[RuntimeException, A] = try {
     val cipher = Cipher.getInstance(delegate.getAlgorithm)
     cipher.init(Cipher.DECRYPT_MODE, delegate)
-    cipher.doFinal(data.blob).deserialize[A]
+    cipher.doFinal(data.blob.toByteArray).deserialize[A]
   } catch {
     case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
     case e: BadPaddingException       => Left(new RuntimeException("Failed to decrypt", e))
