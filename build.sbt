@@ -32,4 +32,3 @@ lazy val bouncycastle = (project in file("projects/bouncycastle") withId "crypto
     )
   )
 
-ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeCentralHost
