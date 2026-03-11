@@ -9,7 +9,7 @@ final class Blob private[crypto4s] (private val bytes: Array[Byte]) {
   def toHexString: String      = bytes.map(b => "%02x".format(b & 0xff)).mkString
   def toBase64: Blob           = Blob.wrap(Base64.getEncoder.encode(bytes))
   def toUrlBase64: Blob        = Blob.wrap(Base64.getUrlEncoder.withoutPadding.encode(bytes))
-  def toUtf8String: String     = new String(bytes)
+  def toUtf8String: String     = new String(bytes, java.nio.charset.StandardCharsets.UTF_8)
 
   override def equals(obj: Any): Boolean = obj match {
     case other: Blob => MessageDigest.isEqual(bytes, other.bytes)

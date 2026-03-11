@@ -13,7 +13,7 @@ object BlobEncoder extends BlobEncoderInstances {
 trait BlobEncoderInstances {
   given BlobEncoder[Blob]                        = BlobEncoder.instance(identity)
   given BlobEncoder[Array[Byte]]                 = BlobEncoder.instance(Blob(_))
-  given BlobEncoder[String]                      = BlobEncoder.instance(s => Blob.wrap(s.getBytes))
+  given BlobEncoder[String]                      = BlobEncoder.instance(s => Blob.wrap(s.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
   given [Alg, A]: BlobEncoder[Hashed[Alg, A]]    = BlobEncoder.instance(_.hash)
   given [Alg, A]: BlobEncoder[Encrypted[Alg, A]] = BlobEncoder.instance(_.blob)
   given [Alg, A]: BlobEncoder[Maced[Alg, A]]     = BlobEncoder.instance(_.mac)
