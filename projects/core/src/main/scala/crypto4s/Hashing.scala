@@ -6,7 +6,7 @@ import crypto4s.algorithm.SHA256
 trait Hashing[Alg] { self =>
   type Result[A] <: Hashed[Alg, A]
 
-  def hash[A](a: A)(using Blob[A]): Result[A]
+  def hash[A](a: A)(using BlobEncoder[A]): Result[A]
 }
 
 object Hashing {
@@ -19,6 +19,6 @@ object Hashing {
 object HashingExtension extends HashingExtension
 trait HashingExtension {
   extension [A](a: A) {
-    def hashed[Alg](using hashing: Hashing[Alg], blob: Blob[A]): hashing.Result[A] = hashing.hash(a)
+    def hashed[Alg](using hashing: Hashing[Alg], encoder: BlobEncoder[A]): hashing.Result[A] = hashing.hash(a)
   }
 }

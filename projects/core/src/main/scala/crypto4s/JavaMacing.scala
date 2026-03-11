@@ -6,11 +6,11 @@ import javax.crypto.Mac
 abstract class JavaMacing[Alg](algorithmName: String) extends Macing[Alg] {
   override type Result[A] = Maced[Alg, A]
 
-  override def mac[A](key: MacKey[Alg], a: A)(using Blob[A]): Maced[Alg, A] = {
+  override def mac[A](key: MacKey[Alg], a: A)(using BlobEncoder[A]): Maced[Alg, A] = {
     val m = Mac.getInstance(algorithmName)
     m.init(key.asJava)
 
-    Maced[Alg, A](mac = m.doFinal(a.blob))
+    Maced[Alg, A](mac = m.doFinal(a.blob.toByteArray))
   }
 }
 

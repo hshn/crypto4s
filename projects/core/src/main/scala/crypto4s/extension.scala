@@ -1,6 +1,6 @@
 package crypto4s
 
-export BlobExtension.*
+export BlobEncoderExtension.*
 export DeserializableExtension.*
 export HashingExtension.*
 export MacingExtension.*

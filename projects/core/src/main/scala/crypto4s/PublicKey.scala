@@ -7,8 +7,8 @@ import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
 
 trait PublicKey[Alg] { self =>
-  def encrypt[A: Blob](a: A): Encrypted[Alg, A]
-  def verify[A: Blob, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
+  def encrypt[A: BlobEncoder](a: A): Encrypted[Alg, A]
+  def verify[A: BlobEncoder, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
     verification.verify(key = self, a = a, signature = signature)
 
   def asJava: JPublicKey
@@ -34,10 +34,10 @@ private[crypto4s] case class JavaPublicKey[Alg](
   delegate: JPublicKey
 ) extends PublicKey[Alg] {
 
-  override def encrypt[A: Blob](a: A): Encrypted[Alg, A] = {
+  override def encrypt[A: BlobEncoder](a: A): Encrypted[Alg, A] = {
     val cipher = Cipher.getInstance(delegate.getAlgorithm)
     cipher.init(Cipher.ENCRYPT_MODE, delegate)
-    Encrypted(cipher.doFinal(a.blob))
+    Encrypted(Blob.wrap(cipher.doFinal(a.blob.toByteArray)))
   }
 
   override def asJava: JPublicKey = delegate

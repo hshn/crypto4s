@@ -1,24 +1,21 @@
 package crypto4s
 
-import java.security.MessageDigest
-import java.util
-
 trait Maced[Alg, A] {
-  val mac: Array[Byte]
+  val mac: Blob
 
   def verify(other: Maced[Alg, A]): Boolean = verify(other.mac)
-  def verify(other: Array[Byte]): Boolean    = MessageDigest.isEqual(mac, other)
+  def verify(other: Blob): Boolean          = mac == other
 
   override def equals(obj: Any): Boolean = obj match {
-    case other: Maced[_, _] => util.Arrays.equals(mac, other.mac)
+    case other: Maced[_, _] => mac == other.mac
     case _                  => false
   }
 
-  override def hashCode(): Int = util.Arrays.hashCode(mac)
+  override def hashCode(): Int = mac.hashCode()
 }
 
 object Maced {
-  def apply[Alg, A](mac: Array[Byte]): Maced[Alg, A] = new Simple(mac)
+  def apply[Alg, A](mac: Array[Byte]): Maced[Alg, A] = new Simple(Blob.wrap(mac))
 
-  private class Simple[Alg, A](val mac: Array[Byte]) extends Maced[Alg, A]
+  private class Simple[Alg, A](val mac: Blob) extends Maced[Alg, A]
 }

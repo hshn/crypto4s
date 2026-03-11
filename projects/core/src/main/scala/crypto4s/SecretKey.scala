@@ -8,7 +8,7 @@ import javax.crypto.SecretKey as JSecretKey
 import javax.crypto.spec.SecretKeySpec
 
 trait SecretKey[Alg] {
-  def encrypt[A: Blob](a: A): Encrypted[Alg, A]
+  def encrypt[A: BlobEncoder](a: A): Encrypted[Alg, A]
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A]): Either[RuntimeException, A]
 
   def asJava: JSecretKey
@@ -45,18 +45,18 @@ private[crypto4s] case class JavaSecretKey[Alg](
   delegate: JSecretKey
 ) extends SecretKey[Alg] {
 
-  override def encrypt[A: Blob](a: A): Encrypted[Alg, A] = {
+  override def encrypt[A: BlobEncoder](a: A): Encrypted[Alg, A] = {
     val cipher = Cipher.getInstance(delegate.getAlgorithm)
     cipher.init(Cipher.ENCRYPT_MODE, delegate)
 
-    Encrypted(cipher.doFinal(a.blob))
+    Encrypted(Blob.wrap(cipher.doFinal(a.blob.toByteArray)))
   }
 
   override def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A]): Either[RuntimeException, A] = try {
     val cipher = Cipher.getInstance(delegate.getAlgorithm)
     cipher.init(Cipher.DECRYPT_MODE, delegate)
 
-    cipher.doFinal(encrypted.blob).deserialize[A]
+    cipher.doFinal(encrypted.blob.toByteArray).deserialize[A]
   } catch {
     case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
     case e: BadPaddingException       => Left(new RuntimeException("Failed to decrypt", e))
