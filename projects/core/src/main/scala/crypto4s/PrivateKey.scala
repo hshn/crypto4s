@@ -4,13 +4,11 @@ import java.security.KeyFactory
 import java.security.PrivateKey as JPrivateKey
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.PKCS8EncodedKeySpec
-import javax.crypto.BadPaddingException
-import javax.crypto.Cipher
-import javax.crypto.IllegalBlockSizeException
 
 sealed trait PrivateKey[Alg] { self =>
-  def sign[A: BlobEncoder, SignAlg](a: A)(using singing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = singing.sign[A](key = self, a = a)
-  def decrypt[A: Deserializable](data: Encrypted[Alg, A]): Either[RuntimeException, A]
+  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using decrypting: Decrypting[Alg, PrivateKey[Alg]]): Either[RuntimeException, A] =
+    decrypting.decrypt(self, encrypted)
+  def sign[A: BlobEncoder, SignAlg](a: A)(using signing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = signing.sign[A](key = self, a = a)
 
   def asJava: JPrivateKey
 }
@@ -34,15 +32,6 @@ object PrivateKey {
 private[crypto4s] case class JavaPrivateKey[Alg](
   delegate: JPrivateKey
 ) extends PrivateKey[Alg] {
-
-  override def decrypt[A: Deserializable](data: Encrypted[Alg, A]): Either[RuntimeException, A] = try {
-    val cipher = Cipher.getInstance(delegate.getAlgorithm)
-    cipher.init(Cipher.DECRYPT_MODE, delegate)
-    cipher.doFinal(data.blob.toByteArray).deserialize[A]
-  } catch {
-    case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
-    case e: BadPaddingException       => Left(new RuntimeException("Failed to decrypt", e))
-  }
 
   override def asJava: JPrivateKey = delegate
 }

@@ -4,10 +4,10 @@ import java.security.KeyFactory
 import java.security.PublicKey as JPublicKey
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.X509EncodedKeySpec
-import javax.crypto.Cipher
 
 trait PublicKey[Alg] { self =>
-  def encrypt[A: BlobEncoder](a: A): Encrypted[Alg, A]
+  def encrypt[A: BlobEncoder](a: A)(using encrypting: Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] =
+    encrypting.encrypt(self, a)
   def verify[A: BlobEncoder, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
     verification.verify(key = self, a = a, signature = signature)
 
@@ -33,12 +33,6 @@ object PublicKey {
 private[crypto4s] case class JavaPublicKey[Alg](
   delegate: JPublicKey
 ) extends PublicKey[Alg] {
-
-  override def encrypt[A: BlobEncoder](a: A): Encrypted[Alg, A] = {
-    val cipher = Cipher.getInstance(delegate.getAlgorithm)
-    cipher.init(Cipher.ENCRYPT_MODE, delegate)
-    Encrypted(Blob.wrap(cipher.doFinal(a.blob.toByteArray)))
-  }
 
   override def asJava: JPublicKey = delegate
 }
