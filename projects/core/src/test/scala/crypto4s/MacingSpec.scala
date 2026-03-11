@@ -108,6 +108,16 @@ object MacingSpec extends ZIOSpecDefault {
         maced.verify("hello".maced[HmacSHA256](key))
       )
     }
+    test("MacKey.hmacSHA256(size) generates a key with specified size") {
+      val key = MacKey.hmacSHA256(512)
+      val maced = "hello".maced[HmacSHA256](key)
+
+      assertTrue(
+        key.asJava.getEncoded.length == 64,
+        maced.mac.length == 32,
+        maced.verify("hello".maced[HmacSHA256](key))
+      )
+    }
     test("MacKey.hmacSHA256() generates unique keys") {
       val key1 = MacKey.hmacSHA256()
       val key2 = MacKey.hmacSHA256()

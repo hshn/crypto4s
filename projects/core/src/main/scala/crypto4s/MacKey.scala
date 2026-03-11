@@ -11,13 +11,17 @@ trait MacKey[Alg] {
 }
 
 object MacKey {
-  def hmacSHA1(): MacKey[HmacSHA1]               = fromJava(KeyGenerator.getInstance("HmacSHA1").generateKey())
-  def hmacSHA1(key: Array[Byte]): MacKey[HmacSHA1] = JavaMacKey(new SecretKeySpec(key, "HmacSHA1"))
+  def hmacSHA1(size: Int = 160): MacKey[HmacSHA1]    = generate("HmacSHA1", size)
+  def hmacSHA1(key: Array[Byte]): MacKey[HmacSHA1]   = JavaMacKey(new SecretKeySpec(key, "HmacSHA1"))
 
-  def hmacSHA256(): MacKey[HmacSHA256]               = fromJava(KeyGenerator.getInstance("HmacSHA256").generateKey())
+  def hmacSHA256(size: Int = 256): MacKey[HmacSHA256]  = generate("HmacSHA256", size)
   def hmacSHA256(key: Array[Byte]): MacKey[HmacSHA256] = JavaMacKey(new SecretKeySpec(key, "HmacSHA256"))
 
-  private def fromJava[Alg](key: JSecretKey): MacKey[Alg] = JavaMacKey(delegate = key)
+  private def generate[Alg](algorithm: String, size: Int): MacKey[Alg] = {
+    val keyGen = KeyGenerator.getInstance(algorithm)
+    keyGen.init(size)
+    JavaMacKey(delegate = keyGen.generateKey())
+  }
 }
 
 private[crypto4s] case class JavaMacKey[Alg](delegate: JSecretKey) extends MacKey[Alg] {
