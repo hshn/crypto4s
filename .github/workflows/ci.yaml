@@ -51,7 +51,7 @@ jobs:
       run: sbt "Test / test"
 
     - name: Test Report
-      uses: mikepenz/action-junit-report@v5
+      uses: mikepenz/action-junit-report@v6
       if: success() || failure()
       with:
         report_paths: '**/target/test-reports/*.xml'
