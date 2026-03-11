@@ -26,7 +26,7 @@ object Decrypting {
 
   given Decrypting[RSA, PrivateKey[RSA]] with {
     override def decrypt(key: PrivateKey[RSA], data: Array[Byte]): Either[RuntimeException, Array[Byte]] = try {
-      val cipher = Cipher.getInstance(key.asJava.getAlgorithm)
+      val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
       cipher.init(Cipher.DECRYPT_MODE, key.asJava)
       Right(cipher.doFinal(data))
     } catch {
