@@ -1,7 +1,12 @@
 package crypto4s.algorithm
 
-type RSA = RSA.type
-case object RSA
+object RSA {
+  type ECB = ECB.type
+  case object ECB {
+    val transformation: String = "RSA/ECB/PKCS1Padding"
+  }
+}
+type RSA = RSA.ECB
 
 type AES = AES.type
 case object AES
