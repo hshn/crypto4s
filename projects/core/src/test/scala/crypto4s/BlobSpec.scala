@@ -47,7 +47,7 @@ object BlobSpec extends ZIOSpecDefault {
       assertTrue(blob.toByteArray(0) == 1.toByte)
     }
     test("toUtf8String") {
-      val blob = Blob("hello".getBytes)
+      val blob = Blob("hello".getBytes(java.nio.charset.StandardCharsets.UTF_8))
       assertTrue(blob.toUtf8String == "hello")
     }
   }

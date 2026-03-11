@@ -18,7 +18,7 @@ object BlobEncoderSpec extends ZIOSpecDefault {
 
       checkAll(Gen.instant) { instant =>
         assertTrue(
-          instant.blob == Blob(instant.toString.getBytes)
+          instant.blob == Blob(instant.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8))
         )
       }
     }
