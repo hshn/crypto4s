@@ -44,6 +44,53 @@ object SecretKeySpec extends ZIOSpecDefault {
           }
         }
       }
+
+      test("string(algorithm=aes-gcm-256)") {
+        val secretKey = SecretKey.AESGCM()
+
+        check(Gen.alphaNumericStringBounded(0, 256)) { data =>
+          val encrypted = secretKey.encrypt(data)
+
+          for {
+            decrypted <- ZIO.fromEither(secretKey.decrypt(encrypted))
+          } yield {
+            assertTrue(decrypted == data)
+          }
+        }
+      }
+
+      test("secretKey(algorithm=aes-gcm-256)") {
+        val dek       = SecretKey.AESGCM()
+        val secretKey = SecretKey.AESGCM()
+
+        check(
+          Gen.alphaNumericStringBounded(0, 256)
+        ) { data =>
+          val encryptedData = secretKey.encrypt(data)
+          val encryptedKey  = dek.encrypt(secretKey)
+
+          for {
+            decryptedKey  <- ZIO.fromEither(dek.decrypt(encryptedKey))
+            decryptedData <- ZIO.fromEither(decryptedKey.decrypt(encryptedData))
+          } yield {
+            assertTrue(data == decryptedData)
+          }
+        }
+      }
+
+      test("aes-gcm tampered ciphertext returns Left") {
+        val secretKey = SecretKey.AESGCM()
+
+        check(Gen.alphaNumericStringBounded(1, 256)) { data =>
+          val encrypted = secretKey.encrypt(data)
+          val bytes     = encrypted.blob.toByteArray
+          bytes(bytes.length - 1) = (bytes(bytes.length - 1) ^ 0xff).toByte
+          val tampered = Encrypted[algorithm.AES.GCM, String](Blob.wrap(bytes))
+
+          val result = secretKey.decrypt(tampered)
+          assertTrue(result.isLeft)
+        }
+      }
     }
   }
 }
