@@ -16,6 +16,8 @@ trait SecretKey[Alg] { self =>
 }
 
 object SecretKey {
+  private val validAESKeyLengths = Set(16, 24, 32)
+
   def AES(size: Int = 256): SecretKey[algorithm.AES] = {
     val keyGen = KeyGenerator.getInstance("AES")
     keyGen.init(size)
@@ -25,15 +27,12 @@ object SecretKey {
   }
 
   def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES]] = {
-    for {
-      keySpec <-
-        try {
-          Right(new SecretKeySpec(key, "AES"))
-        } catch {
-          case e: IllegalArgumentException => Left(e)
-        }
-    } yield {
-      fromJava(keySpec)
+    if (!validAESKeyLengths.contains(key.length))
+      Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes"))
+    else try {
+      Right(fromJava(new SecretKeySpec(key, "AES")))
+    } catch {
+      case e: IllegalArgumentException => Left(e)
     }
   }
 
@@ -44,8 +43,6 @@ object SecretKey {
 
     fromJava(key)
   }
-
-  private val validAESKeyLengths = Set(16, 24, 32)
 
   def AESGCM(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES.GCM]] = {
     if (!validAESKeyLengths.contains(key.length))
