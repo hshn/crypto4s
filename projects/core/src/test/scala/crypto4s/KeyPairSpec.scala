@@ -41,6 +41,23 @@ object KeyPairSpec extends ZIOSpecDefault {
       }
     }
 
+    test("RSA.transformation is compatible with bare RSA algorithm") {
+      import javax.crypto.Cipher
+      val keyPair = KeyPair.RSA()
+
+      val plaintext = "cross-cipher compatibility".getBytes("UTF-8")
+
+      val encryptCipher = Cipher.getInstance("RSA")
+      encryptCipher.init(Cipher.ENCRYPT_MODE, keyPair.publicKey.asJava)
+      val encrypted = encryptCipher.doFinal(plaintext)
+
+      val decryptCipher = Cipher.getInstance(algorithm.RSA.transformation)
+      decryptCipher.init(Cipher.DECRYPT_MODE, keyPair.privateKey.asJava)
+      val decrypted = decryptCipher.doFinal(encrypted)
+
+      assertTrue(plaintext.sameElements(decrypted))
+    }
+
     suiteAll("sign and verify") {
       test("string: algorithm=RSA") {
         val keyPair = KeyPair.RSA()
