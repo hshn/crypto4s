@@ -42,7 +42,7 @@ object SecretKey {
     keyGen.init(size)
     val key = keyGen.generateKey()
 
-    JavaSecretKey(delegate = key)
+    fromJava(key)
   }
 
   private val validAESKeyLengths = Set(16, 24, 32)
@@ -51,13 +51,13 @@ object SecretKey {
     if (!validAESKeyLengths.contains(key.length))
       Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes"))
     else try {
-      Right(JavaSecretKey(delegate = new SecretKeySpec(key, "AES")))
+      Right(fromJava(new SecretKeySpec(key, "AES")))
     } catch {
       case e: IllegalArgumentException => Left(e)
     }
   }
 
-  def fromJava(key: JSecretKey): SecretKey[algorithm.AES] = JavaSecretKey(
+  def fromJava[Alg](key: JSecretKey): SecretKey[Alg] = JavaSecretKey(
     delegate = key
   )
 }
