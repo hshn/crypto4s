@@ -16,11 +16,11 @@ final class Blob private[crypto4s] (private val bytes: Array[Byte]) {
     case _           => false
   }
 
-  override def hashCode(): Int = java.util.Arrays.hashCode(bytes)
+  override def hashCode(): Int  = java.util.Arrays.hashCode(bytes)
   override def toString: String = toHexString
 }
 
 object Blob {
-  def apply(bytes: Array[Byte]): Blob = new Blob(bytes.clone())
+  def apply(bytes: Array[Byte]): Blob                  = new Blob(bytes.clone())
   private[crypto4s] def wrap(bytes: Array[Byte]): Blob = new Blob(bytes)
 }

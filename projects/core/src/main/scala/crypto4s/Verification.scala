@@ -6,7 +6,8 @@ import java.security.Signature
 
 trait Verification[Alg, KeyAlg] {
   def verify(key: PublicKey[KeyAlg], data: Array[Byte], signature: Array[Byte]): Boolean
-  def verify[A: BlobEncoder](key: PublicKey[KeyAlg], a: A, signature: Signed[Alg, A]): Boolean = verify(key, a.blob.toByteArray, signature.underlying.toByteArray)
+  def verify[A: BlobEncoder](key: PublicKey[KeyAlg], a: A, signature: Signed[Alg, A]): Boolean =
+    verify(key, a.blob.toByteArray, signature.underlying.toByteArray)
 }
 
 object Verification {
