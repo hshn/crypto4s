@@ -7,7 +7,7 @@ trait BlobEncoder[-A] { self =>
 
 object BlobEncoder extends BlobEncoderInstances {
   def apply[A](using encoder: BlobEncoder[A]): BlobEncoder[A] = encoder
-  def instance[A](f: A => Blob): BlobEncoder[A] = (a: A) => f(a)
+  def instance[A](f: A => Blob): BlobEncoder[A]               = (a: A) => f(a)
 }
 
 trait BlobEncoderInstances {
