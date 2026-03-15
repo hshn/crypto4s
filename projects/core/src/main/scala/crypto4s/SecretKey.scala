@@ -16,6 +16,8 @@ trait SecretKey[Alg] { self =>
 }
 
 object SecretKey {
+  private val validAESKeyLengths = Set(16, 24, 32)
+
   def AES(size: Int = 256): SecretKey[algorithm.AES] = {
     val keyGen = KeyGenerator.getInstance("AES")
     keyGen.init(size)
@@ -25,26 +27,17 @@ object SecretKey {
   }
 
   def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES]] = {
-    for {
-      keySpec <-
-        try {
-          Right(new SecretKeySpec(key, "AES"))
-        } catch {
-          case e: IllegalArgumentException => Left(e)
-        }
-    } yield {
-      fromJava(keySpec)
-    }
+    if (!validAESKeyLengths.contains(key.length))
+      Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes"))
+    else
+      try {
+        Right(fromJava(new SecretKeySpec(key, "AES")))
+      } catch {
+        case e: IllegalArgumentException => Left(e)
+      }
   }
 
-  def fromJava(key: JSecretKey): SecretKey[algorithm.AES] = JavaSecretKey(
+  def fromJava[Alg](key: JSecretKey): SecretKey[Alg] = JavaSecretKey(
     delegate = key
   )
-}
-
-private[crypto4s] case class JavaSecretKey[Alg](
-  delegate: JSecretKey
-) extends SecretKey[Alg] {
-
-  override def asJava: JSecretKey = delegate
 }

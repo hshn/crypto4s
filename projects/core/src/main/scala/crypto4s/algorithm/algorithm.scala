@@ -6,7 +6,11 @@ case object RSA {
 }
 
 type AES = AES.type
-case object AES
+case object AES {
+  val transformation: String = "AES/GCM/NoPadding"
+  val ivLength: Int          = 12
+  val tagLength: Int         = 128
+}
 
 type SHA1 = SHA1.type
 case object SHA1

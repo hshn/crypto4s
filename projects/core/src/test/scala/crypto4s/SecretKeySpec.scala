@@ -44,6 +44,20 @@ object SecretKeySpec extends ZIOSpecDefault {
           }
         }
       }
+
+      test("tampered ciphertext returns Left") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.alphaNumericStringBounded(1, 256)) { data =>
+          val encrypted = secretKey.encrypt(data)
+          val bytes     = encrypted.blob.toByteArray
+          bytes(bytes.length - 1) = (bytes(bytes.length - 1) ^ 0xff).toByte
+          val tampered = Encrypted[algorithm.AES, String](Blob.wrap(bytes))
+
+          val result = secretKey.decrypt(tampered)
+          assertTrue(result.isLeft)
+        }
+      }
     }
   }
 }
