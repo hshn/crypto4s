@@ -29,39 +29,15 @@ object SecretKey {
   def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES]] = {
     if (!validAESKeyLengths.contains(key.length))
       Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes"))
-    else try {
-      Right(fromJava(new SecretKeySpec(key, "AES")))
-    } catch {
-      case e: IllegalArgumentException => Left(e)
-    }
-  }
-
-  def AESGCM(size: Int = 256): SecretKey[algorithm.AES.GCM] = {
-    val keyGen = KeyGenerator.getInstance("AES")
-    keyGen.init(size)
-    val key = keyGen.generateKey()
-
-    fromJava(key)
-  }
-
-  def AESGCM(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES.GCM]] = {
-    if (!validAESKeyLengths.contains(key.length))
-      Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes"))
-    else try {
-      Right(fromJava(new SecretKeySpec(key, "AES")))
-    } catch {
-      case e: IllegalArgumentException => Left(e)
-    }
+    else
+      try {
+        Right(fromJava(new SecretKeySpec(key, "AES")))
+      } catch {
+        case e: IllegalArgumentException => Left(e)
+      }
   }
 
   def fromJava[Alg](key: JSecretKey): SecretKey[Alg] = JavaSecretKey(
     delegate = key
   )
-}
-
-private[crypto4s] case class JavaSecretKey[Alg](
-  delegate: JSecretKey
-) extends SecretKey[Alg] {
-
-  override def asJava: JSecretKey = delegate
 }

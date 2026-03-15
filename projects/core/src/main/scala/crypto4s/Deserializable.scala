@@ -18,13 +18,9 @@ object Deserializable {
     override def deserialize(a: Array[Byte]): Either[RuntimeException, PrivateKey[RSA]] =
       PrivateKey.RSA(a).left.map(e => new RuntimeException("Failed to deserialize private key", e))
   }
-  given deserializableSecretKeyAES: Deserializable[SecretKey[AES]] with {
+  given Deserializable[SecretKey[AES]] with {
     override def deserialize(a: Array[Byte]): Either[RuntimeException, SecretKey[AES]] =
       SecretKey.AES(a).left.map(e => new RuntimeException("Failed to deserialize secret key", e))
-  }
-  given deserializableSecretKeyAESGCM: Deserializable[SecretKey[AES.GCM]] with {
-    override def deserialize(a: Array[Byte]): Either[RuntimeException, SecretKey[AES.GCM]] =
-      SecretKey.AESGCM(a).left.map(e => new RuntimeException("Failed to deserialize secret key", e))
   }
 }
 

@@ -16,26 +16,15 @@ trait Decrypting[Alg, Key] {
 
 object Decrypting {
   given Decrypting[AES, SecretKey[AES]] with {
-    override def decrypt(key: SecretKey[AES], data: Array[Byte]): Either[RuntimeException, Array[Byte]] = try {
-      val cipher = Cipher.getInstance(key.asJava.getAlgorithm)
-      cipher.init(Cipher.DECRYPT_MODE, key.asJava)
-      Right(cipher.doFinal(data))
-    } catch {
-      case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
-      case e: BadPaddingException       => Left(new RuntimeException("Failed to decrypt", e))
-    }
-  }
-
-  given Decrypting[AES.GCM, SecretKey[AES.GCM]] with {
-    override def decrypt(key: SecretKey[AES.GCM], data: Array[Byte]): Either[RuntimeException, Array[Byte]] = {
-      val minLength = AES.GCM.ivLength + AES.GCM.tagLength / 8
+    override def decrypt(key: SecretKey[AES], data: Array[Byte]): Either[RuntimeException, Array[Byte]] = {
+      val minLength = AES.ivLength + AES.tagLength / 8
       if (data.length < minLength)
         Left(new RuntimeException("Failed to decrypt"))
       else try {
-        val iv = data.take(AES.GCM.ivLength)
-        val ciphertext = data.drop(AES.GCM.ivLength)
-        val cipher = Cipher.getInstance(AES.GCM.transformation)
-        cipher.init(Cipher.DECRYPT_MODE, key.asJava, new GCMParameterSpec(AES.GCM.tagLength, iv))
+        val iv = data.take(AES.ivLength)
+        val ciphertext = data.drop(AES.ivLength)
+        val cipher = Cipher.getInstance(AES.transformation)
+        cipher.init(Cipher.DECRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
         Right(cipher.doFinal(ciphertext))
       } catch {
         case e: AEADBadTagException       => Left(new RuntimeException("Failed to decrypt", e))
