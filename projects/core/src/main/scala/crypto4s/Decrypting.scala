@@ -20,16 +20,17 @@ object Decrypting {
       val minLength = AES.ivLength + AES.tagLength / 8
       if (data.length < minLength)
         Left(new RuntimeException("Failed to decrypt"))
-      else try {
-        val iv = data.take(AES.ivLength)
-        val ciphertext = data.drop(AES.ivLength)
-        val cipher = Cipher.getInstance(AES.transformation)
-        cipher.init(Cipher.DECRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
-        Right(cipher.doFinal(ciphertext))
-      } catch {
-        case e: AEADBadTagException       => Left(new RuntimeException("Failed to decrypt", e))
-        case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
-      }
+      else
+        try {
+          val iv         = data.take(AES.ivLength)
+          val ciphertext = data.drop(AES.ivLength)
+          val cipher     = Cipher.getInstance(AES.transformation)
+          cipher.init(Cipher.DECRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
+          Right(cipher.doFinal(ciphertext))
+        } catch {
+          case e: AEADBadTagException       => Left(new RuntimeException("Failed to decrypt", e))
+          case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
+        }
     }
   }
 
