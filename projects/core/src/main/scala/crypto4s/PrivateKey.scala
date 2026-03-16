@@ -5,7 +5,7 @@ import java.security.PrivateKey as JPrivateKey
 import java.security.spec.InvalidKeySpecException
 import java.security.spec.PKCS8EncodedKeySpec
 
-sealed trait PrivateKey[Alg] { self =>
+trait PrivateKey[Alg] { self =>
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using
     decrypting: Decrypting[Alg, PrivateKey[Alg]]
   ): Either[RuntimeException, A] =
@@ -29,11 +29,4 @@ object PrivateKey {
   def fromJava[Alg](key: JPrivateKey): PrivateKey[Alg] = JavaPrivateKey(
     delegate = key
   )
-}
-
-private[crypto4s] case class JavaPrivateKey[Alg](
-  delegate: JPrivateKey
-) extends PrivateKey[Alg] {
-
-  override def asJava: JPrivateKey = delegate
 }
