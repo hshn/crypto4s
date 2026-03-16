@@ -29,10 +29,3 @@ object PublicKey {
     delegate = key
   )
 }
-
-private[crypto4s] case class JavaPublicKey[Alg](
-  delegate: JPublicKey
-) extends PublicKey[Alg] {
-
-  override def asJava: JPublicKey = delegate
-}
