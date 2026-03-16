@@ -45,9 +45,9 @@ object KeyPairSpec extends ZIOSpecDefault {
       val keyPair1 = KeyPair.RSA()
       val keyPair2 = KeyPair.RSA()
 
-      val encrypted = keyPair1.encrypt("secret")
+      val encrypted         = keyPair1.encrypt("secret")
       val wrongKeyDecrypted = Encrypted[algorithm.RSA, String](encrypted.blob)
-      val result = keyPair2.privateKey.decrypt(wrongKeyDecrypted)
+      val result            = keyPair2.privateKey.decrypt(wrongKeyDecrypted)
 
       assertTrue(result.left.exists(_.isInstanceOf[DecryptionException.IntegrityCheckFailed]))
     }

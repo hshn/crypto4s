@@ -10,7 +10,9 @@ import javax.crypto.spec.GCMParameterSpec
 
 trait Decrypting[Alg, Key] {
   def decrypt(key: Key, data: Array[Byte]): Either[DecryptionException, Array[Byte]]
-  def decrypt[A](key: Key, encrypted: Encrypted[Alg, A])(using deserializable: Deserializable[A]): Either[DecryptionException | DeserializationException, A] =
+  def decrypt[A](key: Key, encrypted: Encrypted[Alg, A])(using
+    deserializable: Deserializable[A]
+  ): Either[DecryptionException | DeserializationException, A] =
     decrypt(key, encrypted.blob.toByteArray) match {
       case Left(e)      => Left(e)
       case Right(bytes) => deserializable.deserialize(bytes)
