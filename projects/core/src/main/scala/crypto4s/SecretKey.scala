@@ -28,7 +28,7 @@ object SecretKey {
 
   def AES(key: Array[Byte]): Either[IllegalArgumentException, SecretKey[algorithm.AES]] = {
     if (!validAESKeyLengths.contains(key.length))
-      Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes"))
+      Left(new IllegalArgumentException(s"Invalid AES key length: ${key.length} bytes (must be 16, 24, or 32)"))
     else
       try {
         Right(fromJava(new SecretKeySpec(key, "AES")))

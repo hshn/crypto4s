@@ -2,7 +2,6 @@ package crypto4s
 
 import crypto4s.algorithm.AES
 import crypto4s.algorithm.RSA
-import javax.crypto.AEADBadTagException
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
@@ -28,7 +27,7 @@ object Decrypting {
           cipher.init(Cipher.DECRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
           Right(cipher.doFinal(ciphertext))
         } catch {
-          case e: AEADBadTagException       => Left(new RuntimeException("Failed to decrypt", e))
+          case e: BadPaddingException        => Left(new RuntimeException("Failed to decrypt", e))
           case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
         }
     }
