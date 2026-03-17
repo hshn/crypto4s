@@ -27,7 +27,7 @@ object Decrypting {
           cipher.init(Cipher.DECRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
           Right(cipher.doFinal(ciphertext))
         } catch {
-          case e: BadPaddingException        => Left(new RuntimeException("Failed to decrypt", e))
+          case e: BadPaddingException       => Left(new RuntimeException("Failed to decrypt", e))
           case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))
         }
     }
