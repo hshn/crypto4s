@@ -13,10 +13,12 @@ trait Encrypting[Alg, Key] {
 }
 
 object Encrypting {
+  private val secureRandom = new SecureRandom()
+
   given Encrypting[AES, SecretKey[AES]] with {
     override def encrypt(key: SecretKey[AES], data: Array[Byte]): Array[Byte] = {
       val iv = new Array[Byte](AES.ivLength)
-      new SecureRandom().nextBytes(iv)
+      secureRandom.nextBytes(iv)
       val cipher = Cipher.getInstance(AES.transformation)
       cipher.init(Cipher.ENCRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
       val ciphertext = cipher.doFinal(data)
