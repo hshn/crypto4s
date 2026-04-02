@@ -8,7 +8,9 @@ case class KeyPair[Alg](
   publicKey: PublicKey[Alg]
 ) {
   def encrypt[A: BlobEncoder](a: A)(using Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] = publicKey.encrypt(a)
-  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using Decrypting[Alg, PrivateKey[Alg]]): Either[RuntimeException, A] =
+  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using
+    Decrypting[Alg, PrivateKey[Alg]]
+  ): Either[DecryptionException | DeserializationException, A] =
     privateKey.decrypt(encrypted)
 
   def sign[A: BlobEncoder, SignAlg](a: A)(using Signing[SignAlg, Alg]): Signed[SignAlg, A]                            = privateKey.sign(a)

@@ -45,7 +45,15 @@ object SecretKeySpec extends ZIOSpecDefault {
         }
       }
 
-      test("tampered ciphertext returns Left") {
+      test("ciphertext too short returns InvalidCiphertext") {
+        val secretKey = SecretKey.AES()
+        val tooShort  = Encrypted[algorithm.AES, String](Blob.wrap(Array[Byte](1, 2, 3)))
+        val result    = secretKey.decrypt(tooShort)
+
+        assertTrue(result.left.exists(_.isInstanceOf[DecryptionException.InvalidCiphertext]))
+      }
+
+      test("tampered ciphertext returns IntegrityCheckFailed") {
         val secretKey = SecretKey.AES()
 
         check(Gen.alphaNumericStringBounded(1, 256)) { data =>
@@ -55,7 +63,7 @@ object SecretKeySpec extends ZIOSpecDefault {
           val tampered = Encrypted[algorithm.AES, String](Blob.wrap(bytes))
 
           val result = secretKey.decrypt(tampered)
-          assertTrue(result.isLeft)
+          assertTrue(result.left.exists(_.isInstanceOf[DecryptionException.IntegrityCheckFailed]))
         }
       }
     }

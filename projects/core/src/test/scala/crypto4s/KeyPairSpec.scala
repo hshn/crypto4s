@@ -41,6 +41,17 @@ object KeyPairSpec extends ZIOSpecDefault {
       }
     }
 
+    test("decrypting with wrong key returns IntegrityCheckFailed") {
+      val keyPair1 = KeyPair.RSA()
+      val keyPair2 = KeyPair.RSA()
+
+      val encrypted         = keyPair1.encrypt("secret")
+      val wrongKeyDecrypted = Encrypted[algorithm.RSA, String](encrypted.blob)
+      val result            = keyPair2.privateKey.decrypt(wrongKeyDecrypted)
+
+      assertTrue(result.left.exists(_.isInstanceOf[DecryptionException.IntegrityCheckFailed]))
+    }
+
     test("RSA.transformation is compatible with bare RSA algorithm") {
       import javax.crypto.Cipher
       val keyPair = KeyPair.RSA()
