@@ -124,51 +124,51 @@
         }
       }
     },
-    "sbt@1.12.4": {
-      "last_modified": "2026-02-26T05:06:13Z",
-      "resolved": "github:NixOS/nixpkgs/26eaeac4e409d7b5a6bf6f90a2a2dc223c78d915#sbt",
+    "sbt@1.12.11": {
+      "last_modified": "2026-05-21T08:15:18Z",
+      "resolved": "github:NixOS/nixpkgs/4a29d733e8a7d5b824c3d8c958a946a9867b3eb2#sbt",
       "source": "devbox-search",
-      "version": "1.12.4",
+      "version": "1.12.11",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/p9ckclh6qb75wq4qdp9naq69p9xzdx92-sbt-1.12.4",
+              "path": "/nix/store/jppy3v7r92hbh2lh54ny1xdqb7m87v7h-sbt-1.12.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/p9ckclh6qb75wq4qdp9naq69p9xzdx92-sbt-1.12.4"
+          "store_path": "/nix/store/jppy3v7r92hbh2lh54ny1xdqb7m87v7h-sbt-1.12.11"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/cyrk8hjasizc868dbi0nq2brpvqcbc07-sbt-1.12.4",
+              "path": "/nix/store/fy07r34xrzcfpghx2bhzdg4fjz2z8p53-sbt-1.12.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/cyrk8hjasizc868dbi0nq2brpvqcbc07-sbt-1.12.4"
+          "store_path": "/nix/store/fy07r34xrzcfpghx2bhzdg4fjz2z8p53-sbt-1.12.11"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/cj4xkk904i3lf17dclfkl05f37np4n1n-sbt-1.12.4",
+              "path": "/nix/store/h0807i7zxas4vh3js53yi41gvr395jm9-sbt-1.12.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/cj4xkk904i3lf17dclfkl05f37np4n1n-sbt-1.12.4"
+          "store_path": "/nix/store/h0807i7zxas4vh3js53yi41gvr395jm9-sbt-1.12.11"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/xiba13gwfp6vi2spbp60l52sagp1hpd9-sbt-1.12.4",
+              "path": "/nix/store/rhvkr9p8rglkkhhhyv8w19qk52sd9g7l-sbt-1.12.11",
               "default": true
             }
           ],
-          "store_path": "/nix/store/xiba13gwfp6vi2spbp60l52sagp1hpd9-sbt-1.12.4"
+          "store_path": "/nix/store/rhvkr9p8rglkkhhhyv8w19qk52sd9g7l-sbt-1.12.11"
         }
       }
     },
