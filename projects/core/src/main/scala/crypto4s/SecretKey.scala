@@ -9,7 +9,7 @@ trait SecretKey[Alg] { self =>
     encrypting.encrypt(self, a)
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using
     decrypting: Decrypting[Alg, SecretKey[Alg]]
-  ): Either[RuntimeException, A] =
+  ): Either[DecryptionException | DeserializationException, A] =
     decrypting.decrypt(self, encrypted)
 
   def asJava: JSecretKey
