@@ -110,51 +110,41 @@
         }
       }
     },
-    "sbt@1.12.13": {
-      "last_modified": "2026-06-30T12:14:11Z",
-      "resolved": "github:NixOS/nixpkgs/e52c192be9d7b2c4bd4aed326c8731b35f8bb75c#sbt",
+    "sbt@2.0.7": {
+      "last_modified": "2026-08-27T07:16:00Z",
+      "resolved": "github:NixOS/nixpkgs/c27cdad491a991b11ed731760aa2ef8db0cb0410#sbt",
       "source": "devbox-search",
-      "version": "1.12.13",
+      "version": "2.0.7",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/sb8hq7fmivl5mr0zllyjgm1b9px3yns1-sbt-1.12.13",
+              "path": "/nix/store/wgkkiksp4vaybifpp8qs8dkjc7bcsbwi-sbt-2.0.7",
               "default": true
             }
           ],
-          "store_path": "/nix/store/sb8hq7fmivl5mr0zllyjgm1b9px3yns1-sbt-1.12.13"
+          "store_path": "/nix/store/wgkkiksp4vaybifpp8qs8dkjc7bcsbwi-sbt-2.0.7"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ny2qkcmxlylpyn94yggdzy0jq8sjb0sg-sbt-1.12.13",
+              "path": "/nix/store/yb4hwjkwvgqxyb6kk7d2j24620y6gflf-sbt-2.0.7",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ny2qkcmxlylpyn94yggdzy0jq8sjb0sg-sbt-1.12.13"
-        },
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "name": "out",
-              "path": "/nix/store/fydj4cag7jjsnzwga34wvpi19xcbda5m-sbt-1.12.13",
-              "default": true
-            }
-          ],
-          "store_path": "/nix/store/fydj4cag7jjsnzwga34wvpi19xcbda5m-sbt-1.12.13"
+          "store_path": "/nix/store/yb4hwjkwvgqxyb6kk7d2j24620y6gflf-sbt-2.0.7"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/agmkkbw5sjbxc4xlw6gpj7870vg5bwcs-sbt-1.12.13",
+              "path": "/nix/store/4xxax2gl72wsnd017r7i3yva2chlr0aj-sbt-2.0.7",
               "default": true
             }
           ],
-          "store_path": "/nix/store/agmkkbw5sjbxc4xlw6gpj7870vg5bwcs-sbt-1.12.13"
+          "store_path": "/nix/store/4xxax2gl72wsnd017r7i3yva2chlr0aj-sbt-2.0.7"
         }
       }
     },
