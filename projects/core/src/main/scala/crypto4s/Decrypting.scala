@@ -36,7 +36,7 @@ object Decrypting {
   given Decrypting[RSA, PrivateKey[RSA]] with {
     override def decrypt(key: PrivateKey[RSA], data: Array[Byte]): Either[RuntimeException, Array[Byte]] = try {
       val cipher = Cipher.getInstance(RSA.transformation)
-      cipher.init(Cipher.DECRYPT_MODE, key.asJava)
+      cipher.init(Cipher.DECRYPT_MODE, key.asJava, RSA.oaepParameters)
       Right(cipher.doFinal(data))
     } catch {
       case e: IllegalBlockSizeException => Left(new RuntimeException("Failed to decrypt", e))

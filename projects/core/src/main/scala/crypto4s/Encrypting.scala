@@ -29,7 +29,7 @@ object Encrypting {
   given Encrypting[RSA, PublicKey[RSA]] with {
     override def encrypt(key: PublicKey[RSA], data: Array[Byte]): Array[Byte] = {
       val cipher = Cipher.getInstance(RSA.transformation)
-      cipher.init(Cipher.ENCRYPT_MODE, key.asJava)
+      cipher.init(Cipher.ENCRYPT_MODE, key.asJava, RSA.oaepParameters)
       cipher.doFinal(data)
     }
   }

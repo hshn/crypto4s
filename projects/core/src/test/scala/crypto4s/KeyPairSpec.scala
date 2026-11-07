@@ -1,10 +1,22 @@
 package crypto4s
 
+import java.math.BigInteger
+import java.security.interfaces.RSAPublicKey
+import org.bouncycastle.crypto.digests.SHA256Digest
+import org.bouncycastle.crypto.encodings.OAEPEncoding
+import org.bouncycastle.crypto.engines.RSAEngine
+import org.bouncycastle.crypto.util.PrivateKeyFactory
+import org.bouncycastle.crypto.util.PublicKeyFactory
+import org.bouncycastle.util.BigIntegers
 import zio.Scope
 import zio.ZIO
 import zio.test.*
 
 object KeyPairSpec extends ZIOSpecDefault {
+  private def oaepWithSha256 = new OAEPEncoding(new RSAEngine(), new SHA256Digest(), new SHA256Digest(), Array.emptyByteArray)
+
+  private def rsaCiphertext(bytes: Array[Byte]) = Encrypted[algorithm.RSA, Array[Byte]](Blob.wrap(bytes))
+
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("KeyPairSpec") {
     suiteAll("encrypt and decrypt") {
       test("string: algorithm=RSA") {
@@ -41,21 +53,58 @@ object KeyPairSpec extends ZIOSpecDefault {
       }
     }
 
-    test("RSA.transformation is compatible with bare RSA algorithm") {
-      import javax.crypto.Cipher
-      val keyPair = KeyPair.RSA()
+    suiteAll("RSA ciphertext format") {
+      test("a PKCS#1 v1.5 block forged from the public key is not accepted") {
+        val keyPair   = KeyPair.RSA()
+        val publicKey = keyPair.publicKey.asJava.asInstanceOf[RSAPublicKey]
+        val keyLength = (publicKey.getModulus.bitLength + 7) / 8
 
-      val plaintext = "cross-cipher compatibility".getBytes("UTF-8")
+        val message = "forged".getBytes("UTF-8")
+        val filler  = Array.fill[Byte](keyLength - message.length - 3)(0x42)
+        val block   = Array[Byte](0x00, 0x02) ++ filler ++ Array[Byte](0x00) ++ message
 
-      val encryptCipher = Cipher.getInstance("RSA")
-      encryptCipher.init(Cipher.ENCRYPT_MODE, keyPair.publicKey.asJava)
-      val encrypted = encryptCipher.doFinal(plaintext)
+        val forged = new BigInteger(1, block).modPow(publicKey.getPublicExponent, publicKey.getModulus)
 
-      val decryptCipher = Cipher.getInstance(algorithm.RSA.transformation)
-      decryptCipher.init(Cipher.DECRYPT_MODE, keyPair.privateKey.asJava)
-      val decrypted = decryptCipher.doFinal(encrypted)
+        val decrypted = keyPair.decrypt(rsaCiphertext(BigIntegers.asUnsignedByteArray(keyLength, forged)))
 
-      assertTrue(plaintext.sameElements(decrypted))
+        assertTrue(decrypted.is(_.left).getMessage == "Failed to decrypt")
+      }
+      test("decrypts OAEP SHA-256 ciphertext from another implementation") {
+        val keyPair   = KeyPair.RSA()
+        val plaintext = "interoperable".getBytes("UTF-8")
+
+        val encoding = oaepWithSha256
+        encoding.init(true, PublicKeyFactory.createKey(keyPair.publicKey.asJava.getEncoded))
+        val ciphertext = encoding.processBlock(plaintext, 0, plaintext.length)
+
+        val decrypted = keyPair.decrypt(rsaCiphertext(ciphertext))
+
+        assertTrue(decrypted.map(_.toSeq) == Right(plaintext.toSeq))
+      }
+      test("produces OAEP SHA-256 ciphertext another implementation can decrypt") {
+        val keyPair   = KeyPair.RSA()
+        val plaintext = "interoperable"
+
+        val ciphertext = keyPair.encrypt(plaintext).blob.toByteArray
+
+        val encoding = oaepWithSha256
+        encoding.init(false, PrivateKeyFactory.createKey(keyPair.privateKey.asJava.getEncoded))
+        val decrypted = encoding.processBlock(ciphertext, 0, ciphertext.length)
+
+        assertTrue(new String(decrypted, "UTF-8") == plaintext)
+      }
+      test("malformed ciphertext is reported as a decryption failure") {
+        val keyPair    = KeyPair.RSA()
+        val ciphertext = keyPair.encrypt("secret").blob.toByteArray
+
+        val tampered  = ciphertext.updated(ciphertext.length - 1, (ciphertext.last ^ 0x01).toByte)
+        val truncated = ciphertext.dropRight(1)
+        val extended  = ciphertext :+ 0x00.toByte
+
+        checkAll(Gen.fromIterable(Seq(tampered, truncated, extended, Array.emptyByteArray))) { malformed =>
+          assertTrue(keyPair.decrypt(rsaCiphertext(malformed)).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
     }
 
     suiteAll("sign and verify") {
