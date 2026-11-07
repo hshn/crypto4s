@@ -1,8 +1,13 @@
 package crypto4s.algorithm
 
+import java.security.spec.MGF1ParameterSpec
+import javax.crypto.spec.OAEPParameterSpec
+import javax.crypto.spec.PSource
+
 type RSA = RSA.type
 case object RSA {
-  val transformation: String = "RSA/ECB/PKCS1Padding"
+  val transformation: String            = "RSA/ECB/OAEPPadding"
+  val oaepParameters: OAEPParameterSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)
 }
 
 type AES = AES.type
