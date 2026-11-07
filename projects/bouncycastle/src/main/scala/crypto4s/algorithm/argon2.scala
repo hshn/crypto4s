@@ -17,16 +17,16 @@ case object Argon2 {
 
   enum SaltSource {
     case Unsalted
-    case Fixed(salt: Array[Byte])
+    case Fixed(salt: Blob)
     case Random
 
-    private[crypto4s] def draw(): Option[Array[Byte]] = this match {
+    private[crypto4s] def draw(): Option[Blob] = this match {
       case Unsalted    => None
       case Fixed(salt) => Some(salt)
       case Random      =>
         val salt = new Array[Byte](RandomSaltLength)
         secureRandom.nextBytes(salt)
-        Some(salt)
+        Some(Blob.wrap(salt))
     }
   }
 
@@ -37,7 +37,7 @@ case object Argon2 {
   case class Parameters(
     `type`: Type,
     version: Version,
-    salt: Option[Array[Byte]],
+    salt: Option[Blob],
     memory: MemorySize,
     iterations: Int,
     length: Int,
@@ -57,7 +57,7 @@ case object Argon2 {
         .withIterations(iterations)
         .withParallelism(parallelism)
 
-      salt.foreach(parameters.withSalt)
+      salt.foreach(salt => parameters.withSalt(salt.toByteArray))
 
       val generator = new Argon2BytesGenerator()
       generator.init(parameters.build())

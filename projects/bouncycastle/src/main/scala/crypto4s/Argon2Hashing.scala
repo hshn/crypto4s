@@ -14,7 +14,7 @@ case class Argon2Hashing(
   override type Result[A] = Argon2Hash[A]
 
   def withVersion(version: Argon2.Version): Argon2Hashing = copy(version = version)
-  def withSalt(salt: Array[Byte]): Argon2Hashing          = copy(salt = Argon2.SaltSource.Fixed(salt))
+  def withSalt(salt: Array[Byte]): Argon2Hashing          = copy(salt = Argon2.SaltSource.Fixed(Blob(salt)))
   def withRandomSalt: Argon2Hashing                       = copy(salt = Argon2.SaltSource.Random)
   def withMemory(memory: MemorySize): Argon2Hashing       = copy(memory = memory)
   def withIterations(iterations: Int): Argon2Hashing      = copy(iterations = iterations)
