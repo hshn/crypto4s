@@ -12,7 +12,7 @@ abstract class MessageDigestHashing[Alg](algorithmName: String) extends Hashing[
       .getInstance(algorithmName)
       .digest(a.blob.toByteArray)
 
-    Hashed[Alg, A](hash = hash)
+    Hashed[Alg, A](hash = hash)(using this)
   }
 }
 

@@ -3,9 +3,9 @@ package crypto4s
 trait Hashed[Alg, A] {
   val hash: Blob
 
-  def verify(of: A)(using Hashing[Alg], BlobEncoder[A]): Boolean = verify(of.hashed[Alg])
-  def verify(hashed: Hashed[Alg, A]): Boolean                    = verify(hashed.hash)
-  def verify(other: Blob): Boolean                               = hash == other
+  def verify(of: A)(using BlobEncoder[A]): Boolean
+  def verify(hashed: Hashed[Alg, A]): Boolean = verify(hashed.hash)
+  def verify(other: Blob): Boolean            = hash == other
 
   override def equals(obj: Any): Boolean = obj match {
     case other: Hashed[_, _] => hash == other.hash
@@ -16,7 +16,9 @@ trait Hashed[Alg, A] {
 }
 
 object Hashed {
-  def apply[Alg, A](hash: Array[Byte]): Hashed[Alg, A] = new Simple(Blob.wrap(hash))
+  def apply[Alg, A](hash: Array[Byte])(using hashing: Hashing[Alg]): Hashed[Alg, A] = new Simple(Blob.wrap(hash), hashing)
 
-  private class Simple[Alg, A](val hash: Blob) extends Hashed[Alg, A]
+  private class Simple[Alg, A](val hash: Blob, hashing: Hashing[Alg]) extends Hashed[Alg, A] {
+    override def verify(of: A)(using BlobEncoder[A]): Boolean = verify(hashing.hash(of))
+  }
 }
