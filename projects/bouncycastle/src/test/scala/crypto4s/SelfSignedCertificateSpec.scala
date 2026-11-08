@@ -36,6 +36,20 @@ object SelfSignedCertificateSpec extends ZIOSpecDefault {
         certificate.notAfter == Instant.parse("2035-12-30T00:00:00Z")
       )
     }
+    test("rounds the validity period down to whole seconds") {
+      val certificate = Certificate.selfSigned(
+        keyPair = keyPair,
+        algorithm = RS256,
+        subject = subject,
+        notBefore = Instant.parse("2026-01-01T00:00:00.999Z"),
+        ttl = 1.day + 500.millis
+      )
+
+      assertTrue(
+        certificate.notBefore == Instant.parse("2026-01-01T00:00:00Z"),
+        certificate.notAfter == Instant.parse("2026-01-02T00:00:01Z")
+      )
+    }
     test("names the subject as its own issuer") {
       assertTrue(selfSigned.issuer == subject)
     }
