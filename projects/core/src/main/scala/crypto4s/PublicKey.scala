@@ -6,7 +6,7 @@ import java.security.spec.InvalidKeySpecException
 import java.security.spec.X509EncodedKeySpec
 
 trait PublicKey[Alg] { self =>
-  def encrypt[A: BlobEncoder](a: A)(using encrypting: Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] =
+  def encrypt[A: BlobEncoder, EncAlg](a: A)(using encrypting: Encrypting[EncAlg, PublicKey[Alg]]): Encrypted[EncAlg, A] =
     encrypting.encrypt(self, a)
   def verify[A: BlobEncoder, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
     verification.verify(key = self, a = a, signature = signature)
