@@ -6,8 +6,8 @@ import java.security.spec.InvalidKeySpecException
 import java.security.spec.PKCS8EncodedKeySpec
 
 trait PrivateKey[Alg] { self =>
-  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using
-    decrypting: Decrypting[Alg, PrivateKey[Alg]]
+  def decrypt[A: Deserializable, EncAlg](encrypted: Encrypted[EncAlg, A])(using
+    decrypting: Decrypting[EncAlg, PrivateKey[Alg]]
   ): Either[RuntimeException, A] =
     decrypting.decrypt(self, encrypted)
   def sign[A: BlobEncoder, SignAlg](a: A)(using signing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = signing.sign[A](key = self, a = a)

@@ -1,13 +1,10 @@
 package crypto4s
 
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
 import zio.Scope
 import zio.ZIO
-import zio.test.Gen
-import zio.test.Spec
-import zio.test.TestEnvironment
-import zio.test.ZIOSpecDefault
-import zio.test.assertTrue
-import zio.test.check
+import zio.test.*
 
 object SecretKeySpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("SecretKey") {
@@ -16,7 +13,7 @@ object SecretKeySpec extends ZIOSpecDefault {
         val secretKey = SecretKey.AES()
 
         check(Gen.alphaNumericStringBounded(0, 256)) { data =>
-          val encrypted = secretKey.encrypt(data)
+          val encrypted: Encrypted[algorithm.AESGCM, String] = secretKey.encrypt(data)
 
           for {
             decrypted <- ZIO.fromEither(secretKey.decrypt(encrypted))
@@ -52,11 +49,55 @@ object SecretKeySpec extends ZIOSpecDefault {
           val encrypted = secretKey.encrypt(data)
           val bytes     = encrypted.blob.toByteArray
           bytes(bytes.length - 1) = (bytes(bytes.length - 1) ^ 0xff).toByte
-          val tampered = Encrypted[algorithm.AES, String](Blob.wrap(bytes))
+          val tampered = Encrypted[algorithm.AESGCM, String](Blob.wrap(bytes))
 
           val result = secretKey.decrypt(tampered)
           assertTrue(result.isLeft)
         }
+      }
+
+      test("ciphertext too short to hold an IV and a tag is reported as a decryption failure") {
+        val secretKey = SecretKey.AES()
+
+        checkAll(Gen.fromIterable(Seq(0, 11, 27, 28))) { length =>
+          val short = Encrypted[algorithm.AESGCM, String](Blob.wrap(Array.fill[Byte](length)(0)))
+
+          assertTrue(secretKey.decrypt(short).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+
+      test("produces AES-GCM ciphertext a standard decryptor can read") {
+        val secretKey = SecretKey.AES()
+        val plaintext = "interoperable"
+
+        val ciphertext = secretKey.encrypt(plaintext).blob.toByteArray
+
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKey.asJava, new GCMParameterSpec(128, ciphertext.take(12)))
+        val decrypted = cipher.doFinal(ciphertext.drop(12))
+
+        assertTrue(new String(decrypted, "UTF-8") == plaintext)
+      }
+
+      test("decrypts AES-GCM ciphertext from a standard encryptor") {
+        val secretKey = SecretKey.AES()
+        val plaintext = "interoperable"
+
+        val iv     = Array.fill[Byte](12)(0x07)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey.asJava, new GCMParameterSpec(128, iv))
+        val ciphertext = iv ++ cipher.doFinal(plaintext.getBytes("UTF-8"))
+
+        val decrypted = secretKey.decrypt(Encrypted[algorithm.AESGCM, String](Blob.wrap(ciphertext)))
+
+        assertTrue(decrypted == Right(plaintext))
+      }
+
+      test("a ciphertext that names only the key algorithm does not compile as decryptable") {
+        for {
+          namingScheme  <- typeCheck("""SecretKey.AES().decrypt(Encrypted[algorithm.AESGCM, String](Blob.wrap(Array.emptyByteArray)))""")
+          namingKeyOnly <- typeCheck("""SecretKey.AES().decrypt(Encrypted[algorithm.AES, String](Blob.wrap(Array.emptyByteArray)))""")
+        } yield assertTrue(namingScheme.isRight, namingKeyOnly.isLeft)
       }
     }
   }
