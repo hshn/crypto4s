@@ -22,6 +22,10 @@ object Deserializable {
     override def deserialize(a: Array[Byte]): Either[RuntimeException, SecretKey[AES]] =
       SecretKey.AES(a).left.map(e => new RuntimeException("Failed to deserialize secret key", e))
   }
+  given Deserializable[Certificate[RSA]] with {
+    override def deserialize(a: Array[Byte]): Either[RuntimeException, Certificate[RSA]] =
+      Certificate.RSA(a).left.map(e => new RuntimeException("Failed to deserialize certificate", e))
+  }
 }
 
 object DeserializableExtension extends DeserializableExtension
