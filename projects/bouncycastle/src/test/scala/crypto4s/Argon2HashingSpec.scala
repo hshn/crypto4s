@@ -155,7 +155,14 @@ object Argon2HashingSpec extends ZIOSpecDefault {
 
       val result = Try(hashing.hash("password")).toEither
 
-      assertTrue(result.is(_.left).isInstanceOf[ArithmeticException])
+      assertTrue(result.is(_.left).isInstanceOf[IllegalArgumentException])
+    }
+    test("refuses a memory size that is not a whole number of KiB instead of rounding it down") {
+      val hashing = lightHashing.withMemory(MemorySize(MemorySize.kb(9).bytes + 1))
+
+      val result = Try(hashing.hash("password")).toEither
+
+      assertTrue(result.is(_.left).isInstanceOf[IllegalArgumentException])
     }
   }
 }
