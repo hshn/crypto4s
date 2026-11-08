@@ -53,7 +53,7 @@ case object Argon2 {
           case Version.V10 => Argon2Parameters.ARGON2_VERSION_10
           case Version.V13 => Argon2Parameters.ARGON2_VERSION_13
         })
-        .withMemoryAsKB(memory.toKb)
+        .withMemoryAsKB(Math.toIntExact(memory.toKb))
         .withIterations(iterations)
         .withParallelism(parallelism)
 

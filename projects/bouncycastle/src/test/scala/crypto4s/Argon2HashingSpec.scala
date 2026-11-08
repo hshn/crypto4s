@@ -3,6 +3,7 @@ package crypto4s
 import crypto4s.algorithm.Argon2
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.HexFormat
+import scala.util.Try
 import zio.Scope
 import zio.test.*
 
@@ -146,6 +147,15 @@ object Argon2HashingSpec extends ZIOSpecDefault {
       )
 
       assertTrue(stored.verify(of = "password"), !stored.verify(of = "passwordz"))
+    }
+    test("refuses a memory size too large for BouncyCastle instead of truncating it") {
+      val hashing = Argon2Hashing()
+        .withMemory(MemorySize.mb(4194305))
+        .withIterations(1)
+
+      val result = Try(hashing.hash("password")).toEither
+
+      assertTrue(result.is(_.left).isInstanceOf[ArithmeticException])
     }
   }
 }
