@@ -2,6 +2,8 @@ package crypto4s
 
 import crypto4s.algorithm.RSA
 import crypto4s.algorithm.SHA256
+import java.nio.charset.StandardCharsets.UTF_8
+import java.security.cert.CertificateParsingException
 import java.time.Instant
 import java.util.Base64
 import zio.Scope
@@ -56,6 +58,14 @@ object CertificateSpec extends ZIOSpecDefault {
       test("rejects a truncated certificate") {
         assertTrue(Certificate.RSA(storedCertificate.dropRight(1)).isLeft)
       }
+      test("rejects bytes trailing the certificate") {
+        assertTrue(Certificate.RSA(storedCertificate :+ 0.toByte).is(_.left).isInstanceOf[CertificateParsingException])
+      }
+      test("rejects a PEM-encoded certificate") {
+        val pem = s"-----BEGIN CERTIFICATE-----\n${Base64.getMimeEncoder.encodeToString(storedCertificate)}\n-----END CERTIFICATE-----\n"
+
+        assertTrue(Certificate.RSA(pem.getBytes(UTF_8)).is(_.left).isInstanceOf[CertificateParsingException])
+      }
       test("rejects bytes that are not a certificate") {
         check(Gen.listOf(Gen.byte)) { bytes =>
           assertTrue(Certificate.RSA(bytes.toArray).isLeft)
@@ -78,6 +88,11 @@ object CertificateSpec extends ZIOSpecDefault {
       }
       test("deserializes from DER") {
         assertTrue(storedCertificate.deserialize[Certificate[RSA]] == Certificate.RSA(storedCertificate))
+      }
+      test("keeps the reason a certificate could not be deserialized") {
+        assertTrue(
+          ecCertificate.deserialize[Certificate[RSA]].is(_.left).getCause.is(_.subtype[UnexpectedCertificateKey]).actual == "EC"
+        )
       }
     }
   }

@@ -3,6 +3,7 @@ package crypto4s
 import java.io.ByteArrayInputStream
 import java.security.cert.CertificateException
 import java.security.cert.CertificateFactory
+import java.security.cert.CertificateParsingException
 import java.security.cert.X509Certificate
 import java.time.Instant
 
@@ -20,7 +21,14 @@ object Certificate {
     val certificate = factory.generateCertificate(new ByteArrayInputStream(der)).asInstanceOf[X509Certificate]
     val key         = certificate.getPublicKey.getAlgorithm
 
-    Either.cond(key == "RSA", Certificate(certificate), new UnexpectedCertificateKey(expected = "RSA", actual = key))
+    for {
+      _ <- Either.cond[CertificateException, Unit](
+        java.util.Arrays.equals(certificate.getEncoded, der),
+        (),
+        new CertificateParsingException("Expected exactly one DER-encoded certificate")
+      )
+      _ <- Either.cond(key == "RSA", (), new UnexpectedCertificateKey(expected = "RSA", actual = key))
+    } yield Certificate(certificate)
   } catch {
     case e: CertificateException => Left(e)
   }
