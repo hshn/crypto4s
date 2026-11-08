@@ -53,7 +53,7 @@ case object Argon2 {
           case Version.V10 => Argon2Parameters.ARGON2_VERSION_10
           case Version.V13 => Argon2Parameters.ARGON2_VERSION_13
         })
-        .withMemoryAsKB(memory.toKb)
+        .withMemoryAsKB(memoryInKiB)
         .withIterations(iterations)
         .withParallelism(parallelism)
 
@@ -67,6 +67,14 @@ case object Argon2 {
       generator.generateBytes(input, hash, 0, hash.length)
 
       Blob.wrap(hash)
+    }
+
+    private def memoryInKiB: Int = {
+      require(
+        memory.bytes % 1024 == 0 && memory.toKb <= Int.MaxValue,
+        s"Argon2 memory must be a whole number of KiB up to ${Int.MaxValue} KiB, but was ${memory.bytes} bytes"
+      )
+      memory.toKb.toInt
     }
   }
 }
