@@ -13,7 +13,7 @@ trait Verification[Alg, KeyAlg] {
 object Verification {
   given Verification[RS256, RSA] with {
     override def verify(key: PublicKey[RSA], data: Array[Byte], signature: Array[Byte]): Boolean = {
-      val verifier = Signature.getInstance("SHA256withRSA")
+      val verifier = Signature.getInstance(RS256.signatureAlgorithm)
       verifier.initVerify(key.asJava)
       verifier.update(data)
       verifier.verify(signature)

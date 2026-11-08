@@ -10,5 +10,5 @@ trait CertificateSigning[SignAlg, KeyAlg] {
 }
 
 object CertificateSigning {
-  given CertificateSigning[RS256, RSA] = key => new JcaContentSignerBuilder("SHA256withRSA").build(key.asJava)
+  given CertificateSigning[RS256, RSA] = key => new JcaContentSignerBuilder(RS256.signatureAlgorithm).build(key.asJava)
 }
