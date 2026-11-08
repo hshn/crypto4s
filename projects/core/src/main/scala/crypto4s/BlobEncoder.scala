@@ -20,6 +20,7 @@ trait BlobEncoderInstances {
   given [Alg]: BlobEncoder[PrivateKey[Alg]]      = BlobEncoder.instance(k => Blob(k.asJava.getEncoded))
   given [Alg]: BlobEncoder[SecretKey[Alg]]       = BlobEncoder.instance(k => Blob(k.asJava.getEncoded))
   given [Alg]: BlobEncoder[MacKey[Alg]]          = BlobEncoder.instance(k => Blob(k.asJava.getEncoded))
+  given [Alg]: BlobEncoder[Certificate[Alg]]     = BlobEncoder.instance(c => Blob(c.asJava.getEncoded))
 }
 
 object BlobEncoderExtension extends BlobEncoderExtension

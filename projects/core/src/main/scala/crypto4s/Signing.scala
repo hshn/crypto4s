@@ -12,7 +12,7 @@ trait Signing[Alg, KeyAlg] {
 object Signing {
   given Signing[RS256, RSA] with {
     override def sign(key: PrivateKey[RSA], data: Array[Byte]): Array[Byte] = {
-      val verifier = JSignature.getInstance("SHA256withRSA")
+      val verifier = JSignature.getInstance(RS256.signatureAlgorithm)
       verifier.initSign(key.asJava)
       verifier.update(data)
       verifier.sign()

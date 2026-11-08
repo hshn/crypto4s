@@ -25,7 +25,9 @@ case object SHA256
 
 // signing algorithms
 type RS256 = RS256.type
-case object RS256
+case object RS256 {
+  val signatureAlgorithm: String = "SHA256withRSA"
+}
 
 // mac algorithms
 type HmacSHA1 = HmacSHA1.type
