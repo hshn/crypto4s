@@ -17,10 +17,10 @@ lazy val root = (project in file(".") withId "crypto4s")
 lazy val core = (project in file("projects/core") withId "crypto4s-core")
   .settings(
     libraryDependencies ++= Seq(
-      Libs.bouncycastle.bcpix,
-      Libs.zio.test         % Test,
-      Libs.zio.testSbt      % Test,
-      Libs.zio.testMagnolia % Test
+      Libs.bouncycastle.bcpix % Test,
+      Libs.zio.test           % Test,
+      Libs.zio.testSbt        % Test,
+      Libs.zio.testMagnolia   % Test
     )
   )
 
@@ -31,4 +31,3 @@ lazy val bouncycastle = (project in file("projects/bouncycastle") withId "crypto
       Libs.bouncycastle.bcpix
     )
   )
-

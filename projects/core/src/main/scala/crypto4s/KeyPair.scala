@@ -7,13 +7,15 @@ case class KeyPair[Alg](
   privateKey: PrivateKey[Alg],
   publicKey: PublicKey[Alg]
 ) {
-  def encrypt[A: BlobEncoder](a: A)(using Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] = publicKey.encrypt(a)
-  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using Decrypting[Alg, PrivateKey[Alg]]): Either[RuntimeException, A] =
+  def encrypt[A: BlobEncoder, EncAlg](a: A)(using Encrypting[EncAlg, PublicKey[Alg]]): Encrypted[EncAlg, A] = publicKey.encrypt(a)
+  def decrypt[A: Deserializable, EncAlg](encrypted: Encrypted[EncAlg, A])(using
+    Decrypting[EncAlg, PrivateKey[Alg]]
+  ): Either[RuntimeException, A] =
     privateKey.decrypt(encrypted)
-  def encrypt[A: BlobEncoder, C: BlobEncoder](a: A, context: C)(using Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] =
+  def encrypt[A: BlobEncoder, C: BlobEncoder, EncAlg](a: A, context: C)(using Encrypting[EncAlg, PublicKey[Alg]]): Encrypted[EncAlg, A] =
     publicKey.encrypt(a, context)
-  def decrypt[A: Deserializable, C: BlobEncoder](encrypted: Encrypted[Alg, A], context: C)(using
-    Decrypting[Alg, PrivateKey[Alg]]
+  def decrypt[A: Deserializable, C: BlobEncoder, EncAlg](encrypted: Encrypted[EncAlg, A], context: C)(using
+    Decrypting[EncAlg, PrivateKey[Alg]]
   ): Either[RuntimeException, A] =
     privateKey.decrypt(encrypted, context)
 

@@ -21,7 +21,7 @@ object KeyPairSpec extends ZIOSpecDefault {
 
   private val distinctContexts = (Gen.string <*> Gen.string).filter((bound, other) => bound != other)
 
-  private def rsaCiphertext(bytes: Array[Byte]) = Encrypted[algorithm.RSA, Array[Byte]](Blob.wrap(bytes))
+  private def rsaCiphertext(bytes: Array[Byte]) = Encrypted[algorithm.RSAOAEP256, Array[Byte]](Blob.wrap(bytes))
 
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("KeyPairSpec") {
     suiteAll("encrypt and decrypt") {
@@ -130,7 +130,8 @@ object KeyPairSpec extends ZIOSpecDefault {
         val keyPair   = KeyPair.RSA()
         val plaintext = "interoperable"
 
-        val ciphertext = keyPair.encrypt(plaintext).blob.toByteArray
+        val encrypted: Encrypted[algorithm.RSAOAEP256, String] = keyPair.encrypt(plaintext)
+        val ciphertext                                         = encrypted.blob.toByteArray
 
         val encoding = oaepWithSha256()
         encoding.init(false, PrivateKeyFactory.createKey(keyPair.privateKey.asJava.getEncoded))
@@ -173,6 +174,12 @@ object KeyPairSpec extends ZIOSpecDefault {
         checkAll(Gen.fromIterable(Seq(tampered, truncated, extended, Array.emptyByteArray))) { malformed =>
           assertTrue(keyPair.decrypt(rsaCiphertext(malformed)).is(_.left).getMessage == "Failed to decrypt")
         }
+      }
+      test("a ciphertext that names only the key algorithm does not compile as decryptable") {
+        for {
+          namingScheme  <- typeCheck("""KeyPair.RSA().decrypt(Encrypted[algorithm.RSAOAEP256, String](Blob.wrap(Array.emptyByteArray)))""")
+          namingKeyOnly <- typeCheck("""KeyPair.RSA().decrypt(Encrypted[algorithm.RSA, String](Blob.wrap(Array.emptyByteArray)))""")
+        } yield assertTrue(namingScheme.isRight, namingKeyOnly.isLeft)
       }
     }
 

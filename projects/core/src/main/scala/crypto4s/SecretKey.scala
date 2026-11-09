@@ -5,16 +5,18 @@ import javax.crypto.SecretKey as JSecretKey
 import javax.crypto.spec.SecretKeySpec
 
 trait SecretKey[Alg] { self =>
-  def encrypt[A: BlobEncoder](a: A)(using encrypting: Encrypting[Alg, SecretKey[Alg]]): Encrypted[Alg, A] =
+  def encrypt[A: BlobEncoder, EncAlg](a: A)(using encrypting: Encrypting[EncAlg, SecretKey[Alg]]): Encrypted[EncAlg, A] =
     encrypting.encrypt(self, a)
-  def encrypt[A: BlobEncoder, C: BlobEncoder](a: A, context: C)(using encrypting: Encrypting[Alg, SecretKey[Alg]]): Encrypted[Alg, A] =
+  def encrypt[A: BlobEncoder, C: BlobEncoder, EncAlg](a: A, context: C)(using
+    encrypting: Encrypting[EncAlg, SecretKey[Alg]]
+  ): Encrypted[EncAlg, A] =
     encrypting.encrypt(self, a, context)
-  def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using
-    decrypting: Decrypting[Alg, SecretKey[Alg]]
+  def decrypt[A: Deserializable, EncAlg](encrypted: Encrypted[EncAlg, A])(using
+    decrypting: Decrypting[EncAlg, SecretKey[Alg]]
   ): Either[RuntimeException, A] =
     decrypting.decrypt(self, encrypted)
-  def decrypt[A: Deserializable, C: BlobEncoder](encrypted: Encrypted[Alg, A], context: C)(using
-    decrypting: Decrypting[Alg, SecretKey[Alg]]
+  def decrypt[A: Deserializable, C: BlobEncoder, EncAlg](encrypted: Encrypted[EncAlg, A], context: C)(using
+    decrypting: Decrypting[EncAlg, SecretKey[Alg]]
   ): Either[RuntimeException, A] =
     decrypting.decrypt(self, encrypted, context)
 

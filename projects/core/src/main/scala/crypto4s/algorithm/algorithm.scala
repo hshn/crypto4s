@@ -5,17 +5,24 @@ import javax.crypto.spec.OAEPParameterSpec
 import javax.crypto.spec.PSource
 
 type RSA = RSA.type
-case object RSA {
-  val transformation: String                                = "RSA/ECB/OAEPPadding"
-  def oaepParameters(label: Array[Byte]): OAEPParameterSpec =
+case object RSA
+
+// encryption algorithms
+type RSAOAEP256 = RSAOAEP256.type
+case object RSAOAEP256 {
+  private[crypto4s] val transformation: String                                = "RSA/ECB/OAEPPadding"
+  private[crypto4s] def oaepParameters(label: Array[Byte]): OAEPParameterSpec =
     new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, new PSource.PSpecified(label))
 }
 
 type AES = AES.type
-case object AES {
-  val transformation: String = "AES/GCM/NoPadding"
-  val ivLength: Int          = 12
-  val tagLength: Int         = 128
+case object AES
+
+type AESGCM = AESGCM.type
+case object AESGCM {
+  private[crypto4s] val transformation: String = "AES/GCM/NoPadding"
+  private[crypto4s] val ivLength: Int          = 12
+  private[crypto4s] val tagLength: Int         = 128
 }
 
 type SHA1 = SHA1.type
