@@ -8,6 +8,8 @@ import java.security.spec.X509EncodedKeySpec
 trait PublicKey[Alg] { self =>
   def encrypt[A: BlobEncoder](a: A)(using encrypting: Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] =
     encrypting.encrypt(self, a)
+  def encrypt[A: BlobEncoder, C: BlobEncoder](a: A, context: C)(using encrypting: Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] =
+    encrypting.encrypt(self, a, context)
   def verify[A: BlobEncoder, SignAlg](a: A, signature: Signed[SignAlg, A])(using verification: Verification[SignAlg, Alg]): Boolean =
     verification.verify(key = self, a = a, signature = signature)
 

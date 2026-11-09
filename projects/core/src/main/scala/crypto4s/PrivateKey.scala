@@ -10,6 +10,10 @@ trait PrivateKey[Alg] { self =>
     decrypting: Decrypting[Alg, PrivateKey[Alg]]
   ): Either[RuntimeException, A] =
     decrypting.decrypt(self, encrypted)
+  def decrypt[A: Deserializable, C: BlobEncoder](encrypted: Encrypted[Alg, A], context: C)(using
+    decrypting: Decrypting[Alg, PrivateKey[Alg]]
+  ): Either[RuntimeException, A] =
+    decrypting.decrypt(self, encrypted, context)
   def sign[A: BlobEncoder, SignAlg](a: A)(using signing: Signing[SignAlg, Alg]): Signed[SignAlg, A] = signing.sign[A](key = self, a = a)
 
   def asJava: JPrivateKey

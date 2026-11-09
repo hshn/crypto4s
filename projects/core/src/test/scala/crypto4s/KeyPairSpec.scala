@@ -13,7 +13,13 @@ import zio.ZIO
 import zio.test.*
 
 object KeyPairSpec extends ZIOSpecDefault {
-  private def oaepWithSha256 = new OAEPEncoding(new RSAEngine(), new SHA256Digest(), new SHA256Digest(), Array.emptyByteArray)
+  private def oaepWithSha256(label: Array[Byte] = Array.emptyByteArray) =
+    new OAEPEncoding(new RSAEngine(), new SHA256Digest(), new SHA256Digest(), label)
+
+  // RSA-2048 with OAEP SHA-256 fits 190 bytes; 63 chars stay within it even at 3 UTF-8 bytes each
+  private val rsaPlaintext = Gen.stringBounded(0, 63)(Gen.unicodeChar)
+
+  private val distinctContexts = (Gen.string <*> Gen.string).filter((bound, other) => bound != other)
 
   private def rsaCiphertext(bytes: Array[Byte]) = Encrypted[algorithm.RSA, Array[Byte]](Blob.wrap(bytes))
 
@@ -53,6 +59,45 @@ object KeyPairSpec extends ZIOSpecDefault {
       }
     }
 
+    suiteAll("context") {
+      test("decrypts with the same context") {
+        val keyPair = KeyPair.RSA()
+
+        check(rsaPlaintext, Gen.string) { (data, context) =>
+          val encrypted = keyPair.encrypt(data, context = context)
+
+          assertTrue(keyPair.decrypt(encrypted, context = context) == Right(data))
+        }
+      }
+      test("rejects a different context") {
+        val keyPair = KeyPair.RSA()
+
+        check(rsaPlaintext, distinctContexts) { case (data, (bound, other)) =>
+          val encrypted = keyPair.encrypt(data, context = bound)
+
+          assertTrue(keyPair.decrypt(encrypted, context = other).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+      test("rejects a missing context") {
+        val keyPair = KeyPair.RSA()
+
+        check(rsaPlaintext, Gen.string1(Gen.unicodeChar)) { (data, context) =>
+          val encrypted = keyPair.encrypt(data, context = context)
+
+          assertTrue(keyPair.decrypt(encrypted).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+      test("rejects a context the ciphertext was not bound to") {
+        val keyPair = KeyPair.RSA()
+
+        check(rsaPlaintext, Gen.string1(Gen.unicodeChar)) { (data, context) =>
+          val encrypted = keyPair.encrypt(data)
+
+          assertTrue(keyPair.decrypt(encrypted, context = context).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+    }
+
     suiteAll("RSA ciphertext format") {
       test("a PKCS#1 v1.5 block forged from the public key is not accepted") {
         val keyPair   = KeyPair.RSA()
@@ -73,7 +118,7 @@ object KeyPairSpec extends ZIOSpecDefault {
         val keyPair   = KeyPair.RSA()
         val plaintext = "interoperable".getBytes("UTF-8")
 
-        val encoding = oaepWithSha256
+        val encoding = oaepWithSha256()
         encoding.init(true, PublicKeyFactory.createKey(keyPair.publicKey.asJava.getEncoded))
         val ciphertext = encoding.processBlock(plaintext, 0, plaintext.length)
 
@@ -87,11 +132,35 @@ object KeyPairSpec extends ZIOSpecDefault {
 
         val ciphertext = keyPair.encrypt(plaintext).blob.toByteArray
 
-        val encoding = oaepWithSha256
+        val encoding = oaepWithSha256()
         encoding.init(false, PrivateKeyFactory.createKey(keyPair.privateKey.asJava.getEncoded))
         val decrypted = encoding.processBlock(ciphertext, 0, ciphertext.length)
 
         assertTrue(new String(decrypted, "UTF-8") == plaintext)
+      }
+      test("binds the context as the OAEP label for another implementation") {
+        val keyPair   = KeyPair.RSA()
+        val plaintext = "interoperable"
+
+        val ciphertext = keyPair.encrypt(plaintext, context = "users/42").blob.toByteArray
+
+        val encoding = oaepWithSha256(label = "users/42".getBytes("UTF-8"))
+        encoding.init(false, PrivateKeyFactory.createKey(keyPair.privateKey.asJava.getEncoded))
+        val decrypted = encoding.processBlock(ciphertext, 0, ciphertext.length)
+
+        assertTrue(new String(decrypted, "UTF-8") == plaintext)
+      }
+      test("decrypts OAEP ciphertext labelled by another implementation") {
+        val keyPair   = KeyPair.RSA()
+        val plaintext = "interoperable".getBytes("UTF-8")
+
+        val encoding = oaepWithSha256(label = "users/42".getBytes("UTF-8"))
+        encoding.init(true, PublicKeyFactory.createKey(keyPair.publicKey.asJava.getEncoded))
+        val ciphertext = encoding.processBlock(plaintext, 0, plaintext.length)
+
+        val decrypted = keyPair.decrypt(rsaCiphertext(ciphertext), context = "users/42")
+
+        assertTrue(decrypted.map(_.toSeq) == Right(plaintext.toSeq))
       }
       test("malformed ciphertext is reported as a decryption failure") {
         val keyPair    = KeyPair.RSA()

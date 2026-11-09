@@ -6,8 +6,9 @@ import javax.crypto.spec.PSource
 
 type RSA = RSA.type
 case object RSA {
-  val transformation: String            = "RSA/ECB/OAEPPadding"
-  val oaepParameters: OAEPParameterSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)
+  val transformation: String                                = "RSA/ECB/OAEPPadding"
+  def oaepParameters(label: Array[Byte]): OAEPParameterSpec =
+    new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, new PSource.PSpecified(label))
 }
 
 type AES = AES.type

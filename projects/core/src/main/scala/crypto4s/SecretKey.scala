@@ -7,10 +7,16 @@ import javax.crypto.spec.SecretKeySpec
 trait SecretKey[Alg] { self =>
   def encrypt[A: BlobEncoder](a: A)(using encrypting: Encrypting[Alg, SecretKey[Alg]]): Encrypted[Alg, A] =
     encrypting.encrypt(self, a)
+  def encrypt[A: BlobEncoder, C: BlobEncoder](a: A, context: C)(using encrypting: Encrypting[Alg, SecretKey[Alg]]): Encrypted[Alg, A] =
+    encrypting.encrypt(self, a, context)
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using
     decrypting: Decrypting[Alg, SecretKey[Alg]]
   ): Either[RuntimeException, A] =
     decrypting.decrypt(self, encrypted)
+  def decrypt[A: Deserializable, C: BlobEncoder](encrypted: Encrypted[Alg, A], context: C)(using
+    decrypting: Decrypting[Alg, SecretKey[Alg]]
+  ): Either[RuntimeException, A] =
+    decrypting.decrypt(self, encrypted, context)
 
   def asJava: JSecretKey
 }

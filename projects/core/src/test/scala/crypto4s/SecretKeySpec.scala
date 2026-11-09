@@ -1,13 +1,12 @@
 package crypto4s
 
+import java.nio.charset.StandardCharsets
+import java.security.SecureRandom
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
 import zio.Scope
 import zio.ZIO
-import zio.test.Gen
-import zio.test.Spec
-import zio.test.TestEnvironment
-import zio.test.ZIOSpecDefault
-import zio.test.assertTrue
-import zio.test.check
+import zio.test.*
 
 object SecretKeySpec extends ZIOSpecDefault {
   override def spec: Spec[TestEnvironment & Scope, Any] = suiteAll("SecretKey") {
@@ -59,5 +58,63 @@ object SecretKeySpec extends ZIOSpecDefault {
         }
       }
     }
+
+    suiteAll("context") {
+      test("decrypts with the same context") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.string, Gen.string) { (data, context) =>
+          val encrypted = secretKey.encrypt(data, context = context)
+
+          assertTrue(secretKey.decrypt(encrypted, context = context) == Right(data))
+        }
+      }
+
+      test("rejects a different context") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.string, distinctContexts) { case (data, (bound, other)) =>
+          val encrypted = secretKey.encrypt(data, context = bound)
+
+          assertTrue(secretKey.decrypt(encrypted, context = other).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+
+      test("rejects a missing context") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.string, Gen.string1(Gen.unicodeChar)) { (data, context) =>
+          val encrypted = secretKey.encrypt(data, context = context)
+
+          assertTrue(secretKey.decrypt(encrypted).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+
+      test("rejects a context the ciphertext was not bound to") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.string, Gen.string1(Gen.unicodeChar)) { (data, context) =>
+          val encrypted = secretKey.encrypt(data)
+
+          assertTrue(secretKey.decrypt(encrypted, context = context).is(_.left).getMessage == "Failed to decrypt")
+        }
+      }
+
+      test("decrypts ciphertext produced without a context") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.string) { data =>
+          val iv = new Array[Byte](12)
+          new SecureRandom().nextBytes(iv)
+          val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+          cipher.init(Cipher.ENCRYPT_MODE, secretKey.asJava, new GCMParameterSpec(128, iv))
+          val stored = Encrypted[algorithm.AES, String](Blob.wrap(iv ++ cipher.doFinal(data.getBytes(StandardCharsets.UTF_8))))
+
+          assertTrue(secretKey.decrypt(stored) == Right(data))
+        }
+      }
+    }
   }
+
+  private val distinctContexts = (Gen.string <*> Gen.string).filter((bound, other) => bound != other)
 }

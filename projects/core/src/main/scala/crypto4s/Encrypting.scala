@@ -7,7 +7,14 @@ import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 
 trait Encrypting[Alg, Key] {
-  def encrypt(key: Key, data: Array[Byte]): Array[Byte]
+
+  /** Encrypts `data` bound to `context`. The context is authenticated but not stored in the ciphertext, so decryption needs the same
+    * context again. An empty context is the same as no context.
+    */
+  def encrypt(key: Key, data: Array[Byte], context: Array[Byte]): Array[Byte]
+  def encrypt(key: Key, data: Array[Byte]): Array[Byte] = encrypt(key, data, Array.emptyByteArray)
+  def encrypt[A, C](key: Key, a: A, context: C)(using encoder: BlobEncoder[A], contextEncoder: BlobEncoder[C]): Encrypted[Alg, A] =
+    Encrypted(Blob.wrap(encrypt(key, encoder.encode(a).toByteArray, contextEncoder.encode(context).toByteArray)))
   def encrypt[A](key: Key, a: A)(using encoder: BlobEncoder[A]): Encrypted[Alg, A] =
     Encrypted(Blob.wrap(encrypt(key, encoder.encode(a).toByteArray)))
 }
@@ -16,20 +23,21 @@ object Encrypting {
   private val secureRandom = new SecureRandom()
 
   given Encrypting[AES, SecretKey[AES]] with {
-    override def encrypt(key: SecretKey[AES], data: Array[Byte]): Array[Byte] = {
+    override def encrypt(key: SecretKey[AES], data: Array[Byte], context: Array[Byte]): Array[Byte] = {
       val iv = new Array[Byte](AES.ivLength)
       secureRandom.nextBytes(iv)
       val cipher = Cipher.getInstance(AES.transformation)
       cipher.init(Cipher.ENCRYPT_MODE, key.asJava, new GCMParameterSpec(AES.tagLength, iv))
+      cipher.updateAAD(context)
       val ciphertext = cipher.doFinal(data)
       iv ++ ciphertext
     }
   }
 
   given Encrypting[RSA, PublicKey[RSA]] with {
-    override def encrypt(key: PublicKey[RSA], data: Array[Byte]): Array[Byte] = {
+    override def encrypt(key: PublicKey[RSA], data: Array[Byte], context: Array[Byte]): Array[Byte] = {
       val cipher = Cipher.getInstance(RSA.transformation)
-      cipher.init(Cipher.ENCRYPT_MODE, key.asJava, RSA.oaepParameters)
+      cipher.init(Cipher.ENCRYPT_MODE, key.asJava, RSA.oaepParameters(label = context))
       cipher.doFinal(data)
     }
   }

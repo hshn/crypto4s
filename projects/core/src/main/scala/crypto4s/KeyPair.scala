@@ -10,6 +10,12 @@ case class KeyPair[Alg](
   def encrypt[A: BlobEncoder](a: A)(using Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] = publicKey.encrypt(a)
   def decrypt[A: Deserializable](encrypted: Encrypted[Alg, A])(using Decrypting[Alg, PrivateKey[Alg]]): Either[RuntimeException, A] =
     privateKey.decrypt(encrypted)
+  def encrypt[A: BlobEncoder, C: BlobEncoder](a: A, context: C)(using Encrypting[Alg, PublicKey[Alg]]): Encrypted[Alg, A] =
+    publicKey.encrypt(a, context)
+  def decrypt[A: Deserializable, C: BlobEncoder](encrypted: Encrypted[Alg, A], context: C)(using
+    Decrypting[Alg, PrivateKey[Alg]]
+  ): Either[RuntimeException, A] =
+    privateKey.decrypt(encrypted, context)
 
   def sign[A: BlobEncoder, SignAlg](a: A)(using Signing[SignAlg, Alg]): Signed[SignAlg, A]                            = privateKey.sign(a)
   def verify[A: BlobEncoder, SignAlg](a: A, signature: Signed[SignAlg, A])(using Verification[SignAlg, Alg]): Boolean =
