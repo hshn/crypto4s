@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/hshn/crypto4s/compare/v0.7.0...v0.8.0) (2026-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* bind ciphertext to a caller-supplied context ([#164](https://github.com/hshn/crypto4s/issues/164))
+
+### Features
+
+* bind ciphertext to a caller-supplied context ([#164](https://github.com/hshn/crypto4s/issues/164)) ([7426923](https://github.com/hshn/crypto4s/commit/742692394586a62993a6c68a5436c9c5107ca072))
+
 ## [0.7.0](https://github.com/hshn/crypto4s/compare/v0.6.0...v0.7.0) (2026-11-08)
 
 
