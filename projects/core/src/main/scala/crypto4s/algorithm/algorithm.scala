@@ -10,9 +10,9 @@ case object RSA
 // encryption algorithms
 type RSAOAEP256 = RSAOAEP256.type
 case object RSAOAEP256 {
-  private[crypto4s] val transformation: String            = "RSA/ECB/OAEPPadding"
-  private[crypto4s] val oaepParameters: OAEPParameterSpec =
-    new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)
+  private[crypto4s] val transformation: String                                = "RSA/ECB/OAEPPadding"
+  private[crypto4s] def oaepParameters(label: Array[Byte]): OAEPParameterSpec =
+    new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, new PSource.PSpecified(label))
 }
 
 type AES = AES.type
