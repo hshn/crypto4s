@@ -141,6 +141,49 @@ object SecretKeySpec extends ZIOSpecDefault {
           assertTrue(secretKey.decrypt(encrypted, context = context).is(_.left).getMessage == "Failed to decrypt")
         }
       }
+
+      test("treats an empty context as no context") {
+        val secretKey = SecretKey.AES()
+
+        check(Gen.string) { data =>
+          val boundToEmpty: Encrypted[algorithm.AESGCM, String] = secretKey.encrypt(data, context = "")
+          val unbound: Encrypted[algorithm.AESGCM, String]      = secretKey.encrypt(data)
+
+          assertTrue(
+            secretKey.decrypt(boundToEmpty) == Right(data),
+            secretKey.decrypt(unbound, context = "") == Right(data)
+          )
+        }
+      }
+
+      test("binds the context as GCM additional authenticated data a standard decryptor can verify") {
+        val secretKey = SecretKey.AES()
+        val plaintext = "interoperable"
+
+        val ciphertext = secretKey.encrypt(plaintext, context = "users/42").blob.toByteArray
+
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKey.asJava, new GCMParameterSpec(128, ciphertext.take(12)))
+        cipher.updateAAD("users/42".getBytes("UTF-8"))
+        val decrypted = cipher.doFinal(ciphertext.drop(12))
+
+        assertTrue(new String(decrypted, "UTF-8") == plaintext)
+      }
+
+      test("decrypts GCM ciphertext a standard encryptor bound to the context") {
+        val secretKey = SecretKey.AES()
+        val plaintext = "interoperable"
+
+        val iv     = Array.fill[Byte](12)(0x07)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey.asJava, new GCMParameterSpec(128, iv))
+        cipher.updateAAD("users/42".getBytes("UTF-8"))
+        val ciphertext = iv ++ cipher.doFinal(plaintext.getBytes("UTF-8"))
+
+        val decrypted = secretKey.decrypt(Encrypted[algorithm.AESGCM, String](Blob.wrap(ciphertext)), context = "users/42")
+
+        assertTrue(decrypted == Right(plaintext))
+      }
     }
   }
 

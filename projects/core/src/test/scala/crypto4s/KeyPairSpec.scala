@@ -96,6 +96,19 @@ object KeyPairSpec extends ZIOSpecDefault {
           assertTrue(keyPair.decrypt(encrypted, context = context).is(_.left).getMessage == "Failed to decrypt")
         }
       }
+      test("treats an empty context as no context") {
+        val keyPair = KeyPair.RSA()
+
+        check(rsaPlaintext) { data =>
+          val boundToEmpty: Encrypted[algorithm.RSAOAEP256, String] = keyPair.encrypt(data, context = "")
+          val unbound: Encrypted[algorithm.RSAOAEP256, String]      = keyPair.encrypt(data)
+
+          assertTrue(
+            keyPair.decrypt(boundToEmpty) == Right(data),
+            keyPair.decrypt(unbound, context = "") == Right(data)
+          )
+        }
+      }
     }
 
     suiteAll("RSA ciphertext format") {
