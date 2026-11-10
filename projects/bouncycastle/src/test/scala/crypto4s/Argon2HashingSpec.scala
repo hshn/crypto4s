@@ -148,6 +148,12 @@ object Argon2HashingSpec extends ZIOSpecDefault {
 
       assertTrue(stored.verify(of = "password"), !stored.verify(of = "passwordz"))
     }
+    test("A hash cannot be encoded as a blob that drops its parameters and salt") {
+      for {
+        digest <- typeCheck("""Argon2Hashing().hash("password").hash""")
+        blob   <- typeCheck("""Argon2Hashing().hash("password").blob""")
+      } yield assertTrue(digest.isRight, blob.isLeft)
+    }
     test("refuses a memory size too large for BouncyCastle instead of truncating it") {
       val hashing = Argon2Hashing()
         .withMemory(MemorySize.mb(4194305))
