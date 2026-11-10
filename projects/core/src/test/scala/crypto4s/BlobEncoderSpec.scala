@@ -25,7 +25,7 @@ object BlobEncoderSpec extends ZIOSpecDefault {
     test("toHexString") {
       checkAll(Gen.string) { string =>
         val hash = string.hashed[SHA256]
-        val hex  = hash.blob.toHexString
+        val hex  = hash.hash.toHexString
 
         assertTrue(
           hex.length == 64,
@@ -36,7 +36,7 @@ object BlobEncoderSpec extends ZIOSpecDefault {
     test("toBase64String") {
       checkAll(Gen.string) { string =>
         val hash    = string.hashed[SHA256]
-        val base64  = hash.blob.toBase64.toUtf8String
+        val base64  = hash.hash.toBase64.toUtf8String
         val decoded = Base64.getDecoder.decode(base64)
 
         assertTrue(
@@ -48,7 +48,7 @@ object BlobEncoderSpec extends ZIOSpecDefault {
     test("toUrlBase64String") {
       checkAll(Gen.string) { string =>
         val hash    = string.hashed[SHA256]
-        val base64  = hash.blob.toUrlBase64.toUtf8String
+        val base64  = hash.hash.toUrlBase64.toUtf8String
         val decoded = Base64.getUrlDecoder.decode(base64)
 
         assertTrue(
